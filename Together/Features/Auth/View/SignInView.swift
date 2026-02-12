@@ -13,7 +13,7 @@ struct SignInView: View {
     var body: some View {
         Background{
             
-            WhiteCard(title: "Welcome Back!", description: "Write something cool here") {
+            WhiteCard(title: "Welcome Back!", description: "Sign in to continue building memories and discovering new activities together.") {
                 
                 VStack(spacing: 10){
                     
@@ -21,15 +21,32 @@ struct SignInView: View {
                         placeholder: "Email",
                         type: .email,
                         text: $viewModel.email,
-                        viewModel: viewModel
+                        isValid: viewModel.isEmailValid
                     )
                     
                     InputField(
                         placeholder: "Password",
                         type: .password,
                         text: $viewModel.password,
-                        viewModel: viewModel
+                        isValid: viewModel.isPasswordValid,
+                        passwordRequirements: PasswordRequirements(
+                            hasUppercase: viewModel.hasUppercase,
+                            hasNumber: viewModel.hasNumber,
+                            hasMinLength: viewModel.hasMinLength
+                        )
                     )
+                    
+                    HStack {
+                        Spacer()
+                        NavigationLink("Forgot your password?") {
+                            ForgotPasswordView()
+                        }
+                        .font(.footnote)
+                        .foregroundColor(.accent)
+                        .fontWeight(.semibold)
+                    }
+                    .padding(.top, 4)
+                    
                     
                 }
                 .padding(.vertical, 40)

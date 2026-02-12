@@ -13,6 +13,7 @@ struct TogetherApp: App {
         WindowGroup {
             NavigationStack{
                WelcomeView()
+                
             }
         }
     }

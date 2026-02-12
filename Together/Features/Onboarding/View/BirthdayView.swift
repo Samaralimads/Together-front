@@ -8,11 +8,27 @@
 import SwiftUI
 
 struct BirthdayView: View {
+    @State private var birthday: Date?
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Background{
+            
+            WhiteCard(title: "One last thing", description:"Just need your birthday and we're all set!" ){
+                
+                InputField(
+                    placeholder: "My birthday is:",
+                    date: $birthday
+                )
+                .padding(.vertical, 40)
+                
+                AccentButton(title: "Next"){
+                    
+                }
+                
+            }
+        }
     }
 }
-
 #Preview {
     BirthdayView()
 }

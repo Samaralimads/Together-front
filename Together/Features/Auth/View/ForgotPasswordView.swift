@@ -19,7 +19,7 @@ struct ForgotPasswordView: View {
                     placeholder: "Email",
                     type: .email,
                     text: $viewModel.email,
-                    viewModel: viewModel)
+                    isValid: viewModel.isEmailValid)
                 .padding(.vertical, 60)
                 
                 AccentButton(title: "Reset Password") {

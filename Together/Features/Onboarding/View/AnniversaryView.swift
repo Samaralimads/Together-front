@@ -8,8 +8,22 @@
 import SwiftUI
 
 struct AnniversaryView: View {
+    @State private var anniversary: Date?
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Background{
+            
+            WhiteCard(title: "How long have you been together?", description:"Choose the date your journey began. We’ll use it to celebrate your milestones." ){
+                
+                InputField(placeholder: "Together since:", date: $anniversary)
+                    .padding(.vertical, 40)
+                
+                AccentButton(title: "Next"){
+                    
+                }
+                
+            }
+        }
     }
 }
 

@@ -13,30 +13,47 @@ struct SignUpView: View {
     var body: some View {
         Background{
             
-            WhiteCard(title: "Create Your Account", description: "Write something cool here") {
+            WhiteCard(title: "Create Your Account", description: "Sign up to begin planning meaningful moments as a couple.") {
                 
                 VStack(spacing: 10){
                     
                     InputField(
-                        placeholder: "Name",
+                        placeholder: "Full Name",
                         type: .name,
                         text: $viewModel.name,
-                        viewModel: viewModel
+                        isValid: viewModel.isNameValid
                     )
                     
                     InputField(
                         placeholder: "Email",
                         type: .email,
                         text: $viewModel.email,
-                        viewModel: viewModel
+                        isValid: viewModel.isEmailValid
                     )
                     
                     InputField(
                         placeholder: "Password",
                         type: .password,
                         text: $viewModel.password,
-                        viewModel: viewModel
+                        isValid: viewModel.isPasswordValid,
+                        passwordRequirements: PasswordRequirements(
+                            hasUppercase: viewModel.hasUppercase,
+                            hasNumber: viewModel.hasNumber,
+                            hasMinLength: viewModel.hasMinLength
+                        )
                     )
+                    
+                    HStack {
+                        Spacer()
+                        NavigationLink("Forgot your password?") {
+                            ForgotPasswordView()
+                        }
+                        .font(.footnote)
+                        .foregroundColor(.accent)
+                        .fontWeight(.semibold)
+                    }
+                    .padding(.top, 4)
+                    
                     
                 }
                 .padding(.vertical, 40)

@@ -14,62 +14,61 @@ enum InputFieldType {
     case date
 }
 
+struct PasswordRequirements {
+    let hasUppercase: Bool
+    let hasNumber: Bool
+    let hasMinLength: Bool
+}
+
 struct InputField: View {
     let placeholder: String
     let type: InputFieldType
-    let viewModel: AuthViewModel
     
     @Binding var text: String
     @Binding var date: Date?
     
+    var isValid: Bool = true
+    var passwordRequirements: PasswordRequirements? = nil
+    
     @State private var showPassword = false
+    @State private var showPasswordRequirements = false
     @FocusState private var isFocused: Bool
     
-    // MARK: - Computed Validation
-    private var isValid: Bool {
-        switch type {
-        case .name:
-            viewModel.isNameValid
-        case .email:
-            viewModel.isEmailValid
-        case .password:
-            viewModel.isPasswordValid
-        case .date:
-            true
-        }
-    }
+    // MARK: - Initializers
     
-    private var showValidation: Bool {
-        switch type {
-        case .name:
-            !viewModel.name.isEmpty
-        case .email:
-            !viewModel.email.isEmpty
-        case .password:
-            !viewModel.password.isEmpty
-        case .date:
-            false
-        }
-    }
-    
-    // MARK: - Initializer
-    
+    // For text-based fields
     init(
         placeholder: String,
         type: InputFieldType,
         text: Binding<String>,
-        date: Binding<Date?> = .constant(nil),
-        viewModel: AuthViewModel
+        isValid: Bool = true,
+        passwordRequirements: PasswordRequirements? = nil
     ) {
         self.placeholder = placeholder
         self.type = type
         self._text = text
+        self._date = .constant(nil)
+        self.isValid = isValid
+        self.passwordRequirements = passwordRequirements
+    }
+    
+    // For date field
+    init(
+        placeholder: String,
+        type: InputFieldType = .date,
+        date: Binding<Date?>,
+        isValid: Bool = true
+    ) {
+        self.placeholder = placeholder
+        self.type = type
+        self._text = .constant("")
         self._date = date
-        self.viewModel = viewModel
+        self.isValid = isValid
+        self.passwordRequirements = nil
     }
     
     var body: some View {
-        VStack(alignment: .leading){
+        VStack(alignment: .leading, spacing: 8) {
             
             // MARK: - Field Types
             ZStack(alignment: .trailing) {
@@ -86,7 +85,7 @@ struct InputField: View {
                         displayedComponents: .date
                     )
                     .datePickerStyle(.compact)
-                    .fieldStyle(isFocused: isFocused)
+                    .fieldStyle(isFocused: true)
                     
                 case .password:
                     Group {
@@ -108,60 +107,70 @@ struct InputField: View {
                         .focused($isFocused)
                 }
                 
-                // MARK: Trailing Icons
+                // MARK: - Trailing Icons
                 if type == .password {
                     Button {
                         showPassword.toggle()
                     } label: {
                         Image(systemName: showPassword ? "eye.fill" : "eye.slash.fill")
+                            .contentTransition(.symbolEffect(.replace))
                             .foregroundColor(.accentColor)
                             .padding(.trailing, 12)
                     }
-                } else if (type == .name || type == .email), showValidation {
-                    Image(systemName:"checkmark")
-                        .foregroundColor(isValid ? .accent : .clear)
+                } else if (type == .name || type == .email), !text.isEmpty {
+                    Image(systemName: "checkmark")
+                        .foregroundColor(isValid ? .accentColor : .clear)
                         .padding(.trailing, 12)
-                        .animation(.easeInOut(duration: 0.2), value: isValid)
+                        .symbolEffect(.bounce, value: isValid)
                 }
             }
-            
-            // MARK: - Password Extras
-            if type == .password {
-                
-                HStack {
-                    Spacer()
-                    NavigationLink("Forgot your password?") {
-                        ForgotPasswordView()
-                    }
-                    .font(.footnote)
-                    .foregroundColor(.accent)
-                    .fontWeight(.semibold)
-                }
-                .padding(.top, 4)
-            }
-            // Password Requirements
-            if type == .password && showValidation && !isValid {
+
+            // MARK: - Password Requirements
+            if type == .password,
+               showPasswordRequirements,
+               let requirements = passwordRequirements {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Must contain at least:")
                         .font(.system(size: 14))
                         .foregroundColor(.primary.opacity(0.7))
-                    
+
                     PasswordRequirementRow(
                         text: "At least 1 uppercase",
-                        isMet: viewModel.hasUppercase
+                        isMet: requirements.hasUppercase
                     )
-                    
+
                     PasswordRequirementRow(
                         text: "At least 1 number",
-                        isMet: viewModel.hasNumber
+                        isMet: requirements.hasNumber
                     )
-                    
+
                     PasswordRequirementRow(
                         text: "At least 8 characters",
-                        isMet: viewModel.hasMinLength
+                        isMet: requirements.hasMinLength
                     )
                 }
                 .padding(.horizontal)
+            }
+        }
+        .onChange(of: text) {
+            guard type == .password else { return }
+            
+            if !text.isEmpty && !isValid {
+                showPasswordRequirements = true
+            } else if text.isEmpty {
+                showPasswordRequirements = false
+            }
+        }
+        .onChange(of: isValid) {
+            guard type == .password else { return }
+
+            if isValid {
+                // Add a small delay before hiding
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
+                        showPasswordRequirements = false
+                    }
+                }
             }
         }
     }
@@ -172,13 +181,14 @@ struct InputField: View {
 struct PasswordRequirementRow: View {
     let text: String
     let isMet: Bool
-    
+
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "checkmark.circle.fill")
                 .foregroundColor(isMet ? .green : .gray.opacity(0.4))
                 .font(.system(size: 16))
-            
+                .symbolEffect(.bounce, value: isMet)
+
             Text(text)
                 .font(.system(size: 14))
                 .foregroundColor(.primary.opacity(0.8))
@@ -191,46 +201,57 @@ struct PasswordRequirementRow: View {
 extension View {
     func fieldStyle(isFocused: Bool) -> some View {
         self
-            .padding(.vertical, 20)
+            .frame(height: 60)
             .padding(.horizontal, 16)
             .font(.system(size: 16))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(
-                        isFocused ? Color.accentColor : Color.gray.opacity(0.4),
+                        isFocused ? Color.accentColor : Color.gray.opacity(0.3),
                         lineWidth: 1.5
                     )
             )
     }
 }
 
+
 // MARK: - Preview
 
 #Preview("All Fields - Sign Up Form") {
-    @Previewable @State var mockViewModel = AuthViewModel()
+    @Previewable @State var viewModel = AuthViewModel()
+    @Previewable @State var birthDate: Date?
     
     VStack(spacing: 20) {
         InputField(
-            placeholder: "Name",
+            placeholder: "Full Name",
             type: .name,
-            text: $mockViewModel.name,
-            viewModel: mockViewModel
+            text: $viewModel.name,
+            isValid: viewModel.isNameValid
         )
         
         InputField(
             placeholder: "Email",
             type: .email,
-            text: $mockViewModel.email,
-            viewModel: mockViewModel
+            text: $viewModel.email,
+            isValid: viewModel.isEmailValid
+        )
+        InputField(
+            placeholder: "Birth Date",
+            date: $birthDate
         )
         
         InputField(
             placeholder: "Password",
             type: .password,
-            text: $mockViewModel.password,
-            viewModel: mockViewModel
+            text: $viewModel.password,
+            isValid: viewModel.isPasswordValid,
+            passwordRequirements: PasswordRequirements(
+                hasUppercase: viewModel.hasUppercase,
+                hasNumber: viewModel.hasNumber,
+                hasMinLength: viewModel.hasMinLength
+            )
         )
+
     }
     .padding()
 }
-

@@ -24,6 +24,8 @@ struct WhiteCard<Content: View>: View {
         self.content = content()
     }
     
+    
+    
     var body: some View {
         ScrollView{
             
@@ -31,13 +33,17 @@ struct WhiteCard<Content: View>: View {
             VStack() {
                 
                 VStack(spacing: 15) {
+                    
                     Text(title)
                         .font(.custom("IvyJournal-Bold", size: 30))
                     
                     Text(description)
                         .font(.system(size: 15, weight: .light))
+                        .padding(.horizontal, 10)
+                    
                 }
                 .multilineTextAlignment(.center)
+                
                 
                 
                 content
@@ -55,8 +61,10 @@ struct WhiteCard<Content: View>: View {
     }
 }
 
+
+
 #Preview {
-    WhiteCard(title: "This is the title", description: "This is a short description"){
+    WhiteCard(title: "This is the title that is longer now to test", description: "This is a short description, longer now to test the spacing"){
         Spacer()
         Text("And this is the content of the card")
     }.background(Color.blue.opacity(0.2))
