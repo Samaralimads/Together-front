@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct WelcomeView: View {
+    @State private var logoOpacity = 0.0
+    
     var body: some View {
         
         Background{
             
             VStack {
-                Spacer()
                 
-                //MARK: Titles
                 Text("Welcome to")
                     .font(.custom("IvyJournal-LightItalic", size: 36))
                     .kerning(4)
@@ -27,15 +27,19 @@ struct WelcomeView: View {
                 
                 Spacer()
                 
-                //MARK: Logo
-                Image("Logo")
+                Image("logo")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 260, height: 300)
+                    .frame(width: 270, height: 300)
+                    .opacity(logoOpacity)
+                    .onAppear {
+                        withAnimation(.easeIn(duration: 3)) {
+                            logoOpacity = 0.9
+                        }
+                    }
                 
                 Spacer()
                 
-                //MARK: Buttons
                 VStack(spacing: 16) {
                     
                     NavigationLink(destination: SignUpView()) {
@@ -61,9 +65,10 @@ struct WelcomeView: View {
                             )
                     }
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 50)
+                
             }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 40)
         }
     }
 }

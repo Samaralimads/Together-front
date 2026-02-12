@@ -16,7 +16,7 @@ struct BirthdayView: View {
             WhiteCard(title: "One last thing", description:"Just need your birthday and we're all set!" ){
                 
                 InputField(
-                    placeholder: "My birthday is:",
+                    placeholder: "My birthday is",
                     date: $birthday
                 )
                 .padding(.vertical, 40)
