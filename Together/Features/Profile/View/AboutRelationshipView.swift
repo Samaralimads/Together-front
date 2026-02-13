@@ -1,18 +1,18 @@
 //
-//  AboutrelationshipView.swift
+//  AboutRelationshipView.swift
 //  Together
 //
-//  Created by Samara Lima da Silva on 12/02/2026.
+//  Created by Samara Lima da Silva on 13/02/2026.
 //
 
 import SwiftUI
 
-struct AboutrelationshipView: View {
+struct AboutRelationshipView: View {
     var body: some View {
         Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
     }
 }
 
 #Preview {
-    AboutrelationshipView()
+    AboutRelationshipView()
 }
