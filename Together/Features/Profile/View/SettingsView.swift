@@ -34,16 +34,13 @@ struct SettingsView: View {
                         //TODO: send email to support
                     }
 
-                    
                     Button("Leave us a review") {
                         requestReview()
                     }
                     
-
                 }
                 .tint(.primary)
                 .padding(.vertical, 10)
-                .listRowBackground(Color.branco)                
                 
                 Section {
                     Button(role: .destructive) {
@@ -53,7 +50,6 @@ struct SettingsView: View {
                     }
                 }
                 .padding(.vertical, 8)
-                .listRowBackground(Color.branco)
                 
             }
             .scrollContentBackground(.hidden)
