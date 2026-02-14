@@ -61,14 +61,14 @@ struct AboutYouView: View {
                 .tint(.accent)
                 
                 Section{
-                    NavigationLink("Change password", destination: ChangePasswordView())
+                    NavigationLink("Reset password", destination: ResetCodeView())
                 }
                 .tint(.primary)
                 .padding(.vertical, 10)
                 
                 Section{
                     Button(role: .destructive) {
-                        //TODO: logout logic
+                        //TODO: alert and delete acc logic
                     } label: {
                         Text("Delete Account")
                     }
