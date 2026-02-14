@@ -27,6 +27,7 @@ struct PartnerView: View {
     @State private var partner = "John"
     @State private var dateOfBirth = Date()
     @State private var anniversary = Date()
+    @State private var showUnpairAlert = false
     
     var body: some View {
         
@@ -71,10 +72,18 @@ struct PartnerView: View {
             
             Section{
                 Button(role: .destructive) {
-                    //TODO: alert and unpair
+                    showUnpairAlert = true
                 } label: {
                     Text("Unpair partner")
+                }        .alert("Unpair Partner", isPresented: $showUnpairAlert) {
+                    Button("Cancel", role: .cancel) { }
+                    Button("Unpair", role: .destructive) {
+                        // TODO: Handle unpairing
+                    }
+                } message: {
+                    Text("Are you sure you want to unpair from \(partner)? You'll need to pair again to reconnect.")
                 }
+                
             }
             .padding(.vertical, 9)
             

@@ -12,6 +12,8 @@ import StoreKit
 struct SettingsView: View {
     @Environment(\.requestReview) var requestReview
     
+    @State private var showLogoutAlert = false
+    
     var body: some View {
         Background{
             
@@ -33,7 +35,7 @@ struct SettingsView: View {
                     Button("Help & Support") {
                         //TODO: send email to support
                     }
-
+                    
                     Button("Leave us a review") {
                         requestReview()
                     }
@@ -44,9 +46,17 @@ struct SettingsView: View {
                 
                 Section {
                     Button(role: .destructive) {
-                        //TODO: logout logic
+                        showLogoutAlert = true
                     } label: {
                         Text("Log out")
+                    }
+                    .alert("Log Out", isPresented: $showLogoutAlert) {
+                        Button("Cancel", role: .cancel) { }
+                        Button("Log out", role: .destructive) {
+                            // TODO: Handle logout
+                        }
+                    } message: {
+                        Text("Are you sure you want to log out?")
                     }
                 }
                 .padding(.vertical, 8)

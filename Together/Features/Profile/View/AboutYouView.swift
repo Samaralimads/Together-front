@@ -11,6 +11,7 @@ struct AboutYouView: View {
     @State private var name = "Samara"
     @State private var dateOfBirth = Date()
     @State private var email = "samara@gmail.com"
+    @State private var showDeleteAccountAlert = false
     
     var body: some View {
         Background{
@@ -41,7 +42,7 @@ struct AboutYouView: View {
                     .datePickerStyle(.compact)
                     .tint(.accent)
                     .padding(.vertical, 2)
-
+                    
                     
                     
                     HStack {
@@ -56,7 +57,7 @@ struct AboutYouView: View {
                         .multilineTextAlignment(.trailing)
                     }
                     .padding(.vertical, 10)
-
+                    
                 }
                 .tint(.accent)
                 
@@ -68,9 +69,17 @@ struct AboutYouView: View {
                 
                 Section{
                     Button(role: .destructive) {
-                        //TODO: alert and delete acc logic
+                        showDeleteAccountAlert = true
                     } label: {
                         Text("Delete Account")
+                    }
+                    .alert("Delete Account", isPresented: $showDeleteAccountAlert) {
+                        Button("Cancel", role: .cancel) { }
+                        Button("Delete", role: .destructive) {
+                            // TODO: Handle account deletion
+                        }
+                    } message: {
+                        Text("This action cannot be undone. All your data will be permanently deleted.")
                     }
                 }
                 .padding(.vertical, 9)
