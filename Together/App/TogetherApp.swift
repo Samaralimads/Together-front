@@ -13,7 +13,7 @@ struct TogetherApp: App {
         WindowGroup {
             NavigationStack{
 //               WelcomeView()
-                AddCodePairingView()
+                ProfileView()
                 
             }
         }
