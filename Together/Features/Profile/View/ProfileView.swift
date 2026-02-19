@@ -19,7 +19,7 @@ struct ProfileView: View {
     
     // Mock data
     @State private var partner1Name = "Sarah"
-    @State private var partner2Name = "" // Empty means not paired
+    @State private var partner2Name = "John" // Empty means not paired
     @State private var anniversary = Calendar.current.date(from: DateComponents(year: 2023, month: 8, day: 4))!
     @State private var importantDates: [ImportantDate] = [
         ImportantDate(id: UUID(), label: "Birthday - Sarah", date: Date()),
