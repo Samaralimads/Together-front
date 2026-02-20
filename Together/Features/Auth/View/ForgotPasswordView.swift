@@ -22,9 +22,10 @@ struct ForgotPasswordView: View {
                     isValid: viewModel.isEmailValid)
                 .padding(.vertical, 60)
                 
-                AccentButton(title: "Reset Password") {
+                Button("Reset Password") {
                     //TODO: Alert "A 4-digit code was sent to your email
                 }
+                .modifier(AccentButtonModifier())
             }
         }
     }

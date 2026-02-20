@@ -31,9 +31,10 @@ struct ResetPasswordView: View {
                 }
                 .padding(.vertical, 40)
                 
-                AccentButton(title: "Reset") {
+                Button("Reset") {
                     //TODO: Alert then go back to login
                 }
+                .modifier(AccentButtonModifier())
                 
             }
             
