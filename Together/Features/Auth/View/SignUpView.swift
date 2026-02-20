@@ -58,9 +58,10 @@ struct SignUpView: View {
                 }
                 .padding(.vertical, 40)
                 
-                AccentButton(title: "Sign Up") {
+                Button("Sign Up") {
                     //add action
                 }
+                .modifier(AccentButtonModifier())
                 
                 Text("or")
                     .foregroundColor(.gray)
@@ -83,6 +84,7 @@ struct SignUpView: View {
                     Text("Already have an account?")
                     NavigationLink("Sign in") {
                         SignInView()
+                            .navigationBarBackButtonHidden(true)
                     }
                     .foregroundColor(.accent)
                     .fontWeight(.bold)

@@ -103,28 +103,22 @@ struct PartnerView: View {
 }
 
 struct NoPartnerView: View{
-    @State private var showInvitationView: Bool = false
     
     var body: some View {
         
         WhiteCard(title: "You are not paired", description:"You haven’t connected with your partner yet. Pair up to view your relationship details, track milestones, and plan meaningful moments together.") {
             
             
-            AccentButton(title: "Invite my partner") {
-                showInvitationView = true
+            NavigationLink("Invite my partner") {
+                ShareCodePairingView()
             }
+            .modifier(AccentButtonModifier())
             .padding(.top, 40)
             
         }
-        .navigationDestination(isPresented: $showInvitationView) {
-            ShareCodePairingView()
-        }
         
     }
-    
-    
 }
-
 
 #Preview {
     AboutRelationshipView()

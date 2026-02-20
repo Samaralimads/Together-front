@@ -81,10 +81,10 @@ struct ActivityDetailView: View {
                         }
                         
                         // Plan button
-                        AccentButton(title: "Plan this activity"){
+                        Button("Plan this activity"){
                             //TODO: Add logic
                         }
-                        
+                        .modifier(AccentButtonModifier())
                         
                         // Save to favorites
                         

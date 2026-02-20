@@ -21,9 +21,10 @@ struct BirthdayView: View {
                 )
                 .padding(.vertical, 40)
                 
-                AccentButton(title: "Next"){
+                Button("Next"){
                     
                 }
+                .modifier(AccentButtonModifier())
                 
             }
         }

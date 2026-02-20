@@ -18,9 +18,10 @@ struct AnniversaryView: View {
                 InputField(placeholder: "Together since:", date: $anniversary)
                     .padding(.vertical, 40)
                 
-                AccentButton(title: "Next"){
+                Button("Next"){
                     
                 }
+                .modifier(AccentButtonModifier())
                 
             }
         }

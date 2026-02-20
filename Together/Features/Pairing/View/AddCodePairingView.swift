@@ -30,8 +30,10 @@ struct AddCodePairingView: View {
                     .opacity(0)
                     .frame(height: 0)
                 
-                AccentButton(title: "Confirm") {
+                Button("Confirm") {
+                    
                 }
+                .modifier(AccentButtonModifier())
                 
                 NavigationLink("I'm the first one here") {
                     ShareCodePairingView()
