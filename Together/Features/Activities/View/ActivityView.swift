@@ -11,12 +11,22 @@ struct ActivityView: View {
     @State private var selectedCategoryId: UUID? = nil
     @State private var showFilters = false
     @State private var filterState = FilterState()
+    @State private var searchText: String = ""
+
     
     private var filteredActivities: [Activity] {
-        if let selectedCategoryId {
-            return mockActivities.filter { $0.categoryId == selectedCategoryId }
+        mockActivities.filter { activity in
+            
+            let matchesCategory =
+                selectedCategoryId == nil ||
+                activity.categoryId == selectedCategoryId
+            
+            let matchesSearch =
+                searchText.isEmpty ||
+                activity.title.localizedCaseInsensitiveContains(searchText)
+            
+            return matchesCategory && matchesSearch
         }
-        return mockActivities
     }
     
     var body: some View {
@@ -48,18 +58,27 @@ struct ActivityView: View {
            HStack(spacing: 12) {
                
                HStack {
-                   Text("Search an activity")
-                       .foregroundColor(.gray)
-                   
-                   Spacer()
-                   
-                   Image(systemName: "magnifyingglass")
-                       .foregroundColor(.black.opacity(0.6))
-               }
-               .padding()
-               .background(.white)
-               .clipShape(Capsule())
+                          Image(systemName: "magnifyingglass")
+                              .foregroundColor(.black.opacity(0.6))
+                          
+                          TextField("Search an activity", text: $searchText)
+                              .textFieldStyle(.plain)
+                              .foregroundColor(.black)
+                          
+                          if !searchText.isEmpty {
+                              Button {
+                                  searchText = ""
+                              } label: {
+                                  Image(systemName: "xmark.circle.fill")
+                                      .foregroundColor(.gray)
+                              }
+                          }
+                      }
+                      .padding()
+                      .background(.white)
+                      .clipShape(Capsule())
                
+               //filters
                Button {
                    showFilters = true
                } label: {
@@ -88,6 +107,8 @@ struct ActivityView: View {
            }
            
        }
+       
+       
        var categoriesRow: some View {
            ScrollView(.horizontal, showsIndicators: false) {
                HStack(spacing: 16) {
@@ -138,7 +159,7 @@ struct ActivityView: View {
 
        
        var ListOfActivities: some View {
-           VStack(alignment: .leading, spacing: 16) {
+           LazyVStack(alignment: .leading, spacing: 16) {
                ForEach(filteredActivities) { activity in
                    if let category = mockCategories.first(where: { $0.id == activity.categoryId }) {
                        NavigationLink(destination: ActivityDetailView(activity: activity, category: category)) {

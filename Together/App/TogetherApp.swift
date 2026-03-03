@@ -12,8 +12,7 @@ struct TogetherApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack{
-//               WelcomeView()
-               ActivityView()
+               TabBar()
                 
             }
         }
