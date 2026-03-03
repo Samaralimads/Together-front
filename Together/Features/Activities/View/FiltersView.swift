@@ -30,77 +30,78 @@ struct FiltersView: View {
     private let locationOptions = ["INDOORS", "OUTDOORS"]
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            ZStack {
-                HStack {
+        NavigationStack{
+        ZStack{
+            Color(.white)
+                .edgesIgnoringSafeArea(.all)
+            
+            VStack(spacing: 0) {
+                
+                Divider()
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        
+                        FilterSection(
+                            title: "Price Range",
+                            badge: filterState.priceRange.count,
+                            options: priceOptions,
+                            selected: filterState.priceRange,
+                            color: Color(.verde)
+                        ) { option in
+                            toggle(&filterState.priceRange, option)
+                        }
+                        
+                        Divider().padding(.horizontal, 20)
+                        
+                        FilterSection(
+                            title: "Approximate Duration",
+                            badge: filterState.duration.count,
+                            options: durationOptions,
+                            selected: filterState.duration,
+                            color: Color(.rosa)
+                        ) { option in
+                            toggle(&filterState.duration, option)
+                        }
+                        
+                        Divider().padding(.horizontal, 20)
+                        
+                        FilterSection(
+                            title: "Location",
+                            badge: filterState.location.count,
+                            options: locationOptions,
+                            selected: filterState.location,
+                            color: Color(.lilas)
+                        ) { option in
+                            toggle(&filterState.location, option)
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                // Apply Button
+                Button("Apply filters"){
+                    dismiss()
+                }
+                .modifier(AccentButtonModifier())
+                .padding(.horizontal, 20)
+                .padding(.bottom, 36)
+            }
+            .toolbar{
+                ToolbarItem(placement: .topBarLeading){
                     Button("Cancel") { dismiss() }
-                        .foregroundColor(.black)
-                    Spacer()
-                    Button("Clear All") {
-                        filterState = FilterState()
-                    }
-                    .foregroundColor(.black)
                 }
-                Text("Filter")
-                    .font(.headline)
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
-            
-            Divider()
-            
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    
-                    FilterSection(
-                        title: "Price Range",
-                        badge: filterState.priceRange.count,
-                        options: priceOptions,
-                        selected: filterState.priceRange,
-                        color: Color(.verde)
-                    ) { option in
-                        toggle(&filterState.priceRange, option)
-                    }
-                    
-                    Divider().padding(.horizontal, 20)
-                    
-                    FilterSection(
-                        title: "Approximate Duration",
-                        badge: filterState.duration.count,
-                        options: durationOptions,
-                        selected: filterState.duration,
-                        color: Color(.rosa)
-                    ) { option in
-                        toggle(&filterState.duration, option)
-                    }
-                    
-                    Divider().padding(.horizontal, 20)
-                    
-                    FilterSection(
-                        title: "Location",
-                        badge: filterState.location.count,
-                        options: locationOptions,
-                        selected: filterState.location,
-                        color: Color(.lilas)
-                    ) { option in
-                        toggle(&filterState.location, option)
-                    }
+                ToolbarItem(placement: .topBarTrailing){
+                    Button("Clear All") {filterState = FilterState()}
                 }
             }
+            .navigationTitle("Filters")
+            .navigationBarTitleDisplayMode(.inline)
             
-            Spacer()
-            
-            // Apply Button
-            Button("Apply filters"){
-                dismiss()
-            }
-            .modifier(AccentButtonModifier())
-            .padding(.horizontal, 20)
-            .padding(.bottom, 36)
         }
-        .background(Color.white)
     }
+}
     
     private func toggle(_ set: inout Set<String>, _ value: String) {
         if set.contains(value) { set.remove(value) } else { set.insert(value) }

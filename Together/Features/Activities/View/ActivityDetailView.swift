@@ -95,7 +95,7 @@ struct ActivityDetailView: View {
 
                             }
                         } label: {
-                            Label("Save to favorites", systemImage: isFavorite ? "heart.fill": "heart")
+                            Label(isFavorite ? "Saved to favorites" : "Save to favorites", systemImage: isFavorite ? "heart.fill": "heart")
                         }
                         .contentTransition(.symbolEffect(.replace.downUp.byLayer, options: .nonRepeating))
                         .foregroundColor(.orange)

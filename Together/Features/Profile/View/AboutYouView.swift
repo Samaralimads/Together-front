@@ -29,6 +29,7 @@ struct AboutYouView: View {
                             text: $name
                         )
                         .multilineTextAlignment(.trailing)
+                        .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 10)
                     
@@ -55,6 +56,7 @@ struct AboutYouView: View {
                             text: $email
                         )
                         .multilineTextAlignment(.trailing)
+                        .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 10)
                     
