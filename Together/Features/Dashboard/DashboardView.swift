@@ -30,7 +30,7 @@ struct DashboardView: View {
     
     var body: some View {
         Background {
-            ScrollView(showsIndicators: false) {
+            ScrollView() {
                 VStack(alignment: .leading, spacing: 20) {
                     
                     // MARK: Header
