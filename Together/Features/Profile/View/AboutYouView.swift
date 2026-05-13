@@ -64,7 +64,9 @@ struct AboutYouView: View {
                 .tint(.accent)
                 
                 Section{
-                    NavigationLink("Reset password", destination: ResetCodeView())
+                    NavigationLink("Reset password",
+                                   destination: ResetCodeView(email: email)
+)
                 }
                 .tint(.primary)
                 .padding(.vertical, 10)

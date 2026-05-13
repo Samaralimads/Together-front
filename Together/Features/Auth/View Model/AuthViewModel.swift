@@ -12,11 +12,12 @@ class AuthViewModel {
     var name: String = ""
     var email: String = ""
     var password: String = ""
+    var birthDate: Date? = nil
     
     var isLoading: Bool = false
     var errorMessage: String?
     
-    //MARK: - Password validation
+    // MARK: - Password validation
     var hasUppercase: Bool {
         password.range(of: "[A-Z]", options: .regularExpression) != nil
     }
@@ -33,28 +34,33 @@ class AuthViewModel {
         hasUppercase && hasNumber && hasMinLength
     }
     
-    //MARK: - Email validation
+    // MARK: - Email validation
     var isEmailValid: Bool {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailRegex)
         return emailPredicate.evaluate(with: email)
     }
     
-    //MARK: - Name validation
+    // MARK: - Name validation
     var isNameValid: Bool {
         name.count >= 2
     }
     
-    //MARK: - Validation for Sign Up/In
+    // MARK: - Birth date validation
+    var isBirthDateValid: Bool {
+        birthDate != nil
+    }
+    
+    // MARK: - Validation for Sign Up/In
     var canSignUp: Bool {
-        isNameValid && isEmailValid && isPasswordValid && !isLoading
+        isNameValid && isEmailValid && isPasswordValid && isBirthDateValid && !isLoading
     }
     
     var canSignIn: Bool {
         isEmailValid && !password.isEmpty && !isLoading
     }
     
-    //MARK: - SignIn
+    // MARK: - SignIn
     func signIn() async {
         guard canSignIn else { return }
         isLoading = true
@@ -65,7 +71,7 @@ class AuthViewModel {
         isLoading = false
     }
     
-    //MARK: - Signup
+    // MARK: - Signup
     func signUp() async {
         guard canSignUp else { return }
         isLoading = true

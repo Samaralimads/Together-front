@@ -116,7 +116,7 @@ struct ActivityView: View {
                    categoryChip(
                        title: "All",
                        isSelected: selectedCategoryId == nil,
-                       imageName: "sparkles"
+                       imageName: "Sparkles"
                    ) {
                        selectedCategoryId = nil
                    }

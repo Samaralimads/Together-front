@@ -25,6 +25,11 @@ struct SignUpView: View {
                     )
                     
                     InputField(
+                        placeholder: "Date of Birth",
+                        date: $viewModel.birthDate
+                    )
+                    
+                    InputField(
                         placeholder: "Email",
                         type: .email,
                         text: $viewModel.email,
@@ -54,7 +59,6 @@ struct SignUpView: View {
                     }
                     .padding(.top, 4)
                     
-                    
                 }
                 .padding(.vertical, 40)
                 
@@ -69,7 +73,7 @@ struct SignUpView: View {
                 Button{
                     
                 } label: {
-                    Text(" Sign up with Apple")
+                    Text(" Sign up with Apple")
                         .fontWeight(.semibold)
                         .foregroundColor(.preto)
                         .frame(maxWidth: .infinity)
@@ -77,7 +81,6 @@ struct SignUpView: View {
                         .cornerRadius(30)
                         .glassEffect()
                         .shadow(color: .black.opacity(0.13), radius: 2, x: 0, y: 4)
-                    
                 }
                 
                 HStack {
@@ -91,7 +94,6 @@ struct SignUpView: View {
                 }
                 .font(.footnote)
                 .padding(.top, 30)
-                
             }
         }
     }

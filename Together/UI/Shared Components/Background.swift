@@ -19,6 +19,7 @@ struct Background<Content: View>: View {
             Image("background")
                 .resizable()
                 .ignoresSafeArea()
+//                .opacity(0.7)
             
             content
         }
