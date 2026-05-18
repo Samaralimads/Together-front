@@ -10,12 +10,14 @@ import SwiftUI
 @main
 struct TogetherApp: App {
     @State private var appState = AppState()
-
+    
     var body: some Scene {
         WindowGroup {
             if appState.isAuthenticated {
-                TabBar()
-                    .environment(appState)
+                NavigationStack {
+                    TabBar()
+                }
+                .environment(appState)
             } else {
                 NavigationStack {
                     WelcomeView()

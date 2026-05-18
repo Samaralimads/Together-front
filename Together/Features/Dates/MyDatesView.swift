@@ -15,11 +15,11 @@ struct MyDatesView: View {
     @State private var selectedTab: MyDatesTab = .favorites
 
     // TODO: Replace with ViewModel data
-    @State private var favorites: [SavedActivity] = mockSavedActivities
-    @State private var upcoming: [SavedActivity] = mockSavedActivities
-    @State private var history: [SavedActivity] = mockSavedActivities
+    @State private var favorites: [Activity] = []
+    @State private var upcoming: [Activity] = []
+    @State private var history: [Activity] = []
 
-    private var currentList: [SavedActivity] {
+    private var currentList: [Activity] {
         switch selectedTab {
         case .favorites: return favorites
         case .upcoming:  return upcoming
@@ -29,10 +29,9 @@ struct MyDatesView: View {
 
     var body: some View {
         Background {
-            ScrollView() {
+            ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
 
-                    // MARK: Header
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Your Dates")
                             .font(.custom("IvyJournal-Bold", size: 30))
@@ -43,19 +42,16 @@ struct MyDatesView: View {
                             .foregroundColor(.branco)
                     }
 
-                    // MARK: Tab Picker
                     tabPicker
 
-                    // MARK: Activity List
                     if currentList.isEmpty {
                         emptyState
                     } else {
                         VStack(spacing: 16) {
-                            ForEach(currentList) { saved in
-                                if let category = mockCategories.first(where: { $0.id == saved.activity.categoryId }) {
-                                    NavigationLink(destination: ActivityDetailView(activity: saved.activity, category: category)) {
-                                        ActivityCard(activity: saved.activity, category: category)
-                                    }
+                            ForEach(currentList) { activity in
+                                let category = Category(id: activity.categoryId, name: "", imageName: "Sparkles")
+                                NavigationLink(destination: ActivityDetailView(activity: activity, category: category)) {
+                                    ActivityCard(activity: activity, category: category)
                                 }
                             }
                         }
@@ -69,7 +65,6 @@ struct MyDatesView: View {
         }
     }
 
-    // MARK: - Tab Picker
     private var tabPicker: some View {
         HStack(spacing: 0) {
             tabButton(title: "FAVORITES", icon: "heart.fill", tab: .favorites)
@@ -85,7 +80,6 @@ struct MyDatesView: View {
 
     private func tabButton(title: String, icon: String, tab: MyDatesTab) -> some View {
         let isSelected = selectedTab == tab
-
         return Button {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 selectedTab = tab
@@ -112,7 +106,6 @@ struct MyDatesView: View {
         }
     }
 
-    // MARK: - Empty State
     private var emptyState: some View {
         VStack(spacing: 12) {
             Text(emptyIcon)
@@ -160,18 +153,6 @@ struct MyDatesView: View {
         case .history:   return "Your completed activities will appear here."
         }
     }
-}
-
-// MARK: - Saved Activity Model
-struct SavedActivity: Identifiable {
-    let id: UUID
-    let activity: Activity
-    var savedAt: Date
-}
-
-// MARK: - Mock Data
-private let mockSavedActivities: [SavedActivity] = mockActivities.map {
-    SavedActivity(id: UUID(), activity: $0, savedAt: Date())
 }
 
 #Preview {

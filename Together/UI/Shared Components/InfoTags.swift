@@ -46,5 +46,6 @@ struct InfoTag : View{
 }
 
 #Preview {
-    InfoTags(activity: mockActivities[0])
+   let activity = Activity(id: UUID(), title: "Sunset Picnic", description: "A lovely picnic.", budget: "€", duration: 150, isIndoor: false, categoryId: UUID())
+   InfoTags(activity: activity)
 }

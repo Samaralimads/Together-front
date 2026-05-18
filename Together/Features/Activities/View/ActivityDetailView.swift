@@ -115,11 +115,10 @@ struct ActivityDetailView: View {
 }
 
 #Preview {
+    let activity = Activity(id: UUID(), title: "Pottery Workshop", description: "Create something meaningful side by side.", budget: "€€€", duration: 180, isIndoor: true, categoryId: UUID())
+    let category = Category(id: UUID(), name: "Creative", imageName: "Creative")
     NavigationStack {
-        ActivityDetailView(
-            activity: mockActivities[0],
-            category: mockCategories[0]
-        )
+        ActivityDetailView(activity: activity, category: category)
     }
 }
 

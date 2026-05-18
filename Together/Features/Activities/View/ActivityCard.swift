@@ -48,9 +48,13 @@ struct ActivityCard: View {
 }
 
 
+
 #Preview {
-    Background{
-        ActivityCard(activity: mockActivities[0], category: mockCategories[0])
-            .padding(20)
-    }
+   let activity = Activity(id: UUID(), title: "Brunch at a Local Café", description: "Enjoy a slow Sunday morning with pastries and coffee.", budget: "€€", duration: 120, isIndoor: true, categoryId: UUID())
+   let category = Category(id: UUID(), name: "Food & Drinks", imageName: "Food&Drinks")
+   Background {
+       ActivityCard(activity: activity, category: category)
+           .padding(20)
+   }
 }
+
