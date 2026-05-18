@@ -9,11 +9,18 @@ import SwiftUI
 
 @main
 struct TogetherApp: App {
+    @State private var appState = AppState()
+
     var body: some Scene {
         WindowGroup {
-            NavigationStack{
-               TabBar()
-                
+            if appState.isAuthenticated {
+                TabBar()
+                    .environment(appState)
+            } else {
+                NavigationStack {
+                    WelcomeView()
+                }
+                .environment(appState)
             }
         }
     }

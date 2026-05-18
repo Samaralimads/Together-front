@@ -15,8 +15,9 @@ class AuthViewModel {
     var birthDate: Date? = nil
     
     var isLoading: Bool = false
-    var errorMessage: String?
-    
+    var errorMessage: String? = nil
+    var isAuthenticated: Bool = false
+
     // MARK: - Password validation
     var hasUppercase: Bool {
         password.range(of: "[A-Z]", options: .regularExpression) != nil
@@ -37,48 +38,72 @@ class AuthViewModel {
     // MARK: - Email validation
     var isEmailValid: Bool {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailRegex)
-        return emailPredicate.evaluate(with: email)
+        return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
     }
-    
+
     // MARK: - Name validation
     var isNameValid: Bool {
         name.count >= 2
     }
-    
+
     // MARK: - Birth date validation
     var isBirthDateValid: Bool {
         birthDate != nil
     }
-    
-    // MARK: - Validation for Sign Up/In
+
     var canSignUp: Bool {
         isNameValid && isEmailValid && isPasswordValid && isBirthDateValid && !isLoading
     }
-    
+
     var canSignIn: Bool {
         isEmailValid && !password.isEmpty && !isLoading
     }
-    
-    // MARK: - SignIn
+
+    // MARK: - Sign Up
+    func signUp() async {
+        guard canSignUp, let birthDate else { return }
+        isLoading = true
+        errorMessage = nil
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = TimeZone(identifier: "UTC")
+        let birthDateString = formatter.string(from: birthDate)
+
+        do {
+            _ = try await AuthService.register(
+                firstName: name,
+                birthDate: birthDateString,
+                email: email,
+                password: password
+            )
+            isAuthenticated = true
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+
+        isLoading = false
+    }
+
+    // MARK: - Sign In
     func signIn() async {
         guard canSignIn else { return }
         isLoading = true
         errorMessage = nil
-        
-        // TODO: Call AuthService
-        
+
+        do {
+            _ = try await AuthService.login(email: email, password: password)
+            isAuthenticated = true
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+
         isLoading = false
     }
-    
-    // MARK: - Signup
-    func signUp() async {
-        guard canSignUp else { return }
-        isLoading = true
-        errorMessage = nil
-        
-        // TODO: Call AuthService
-        
-        isLoading = false
+
+    // MARK: - Logout
+    func logout() {
+        AuthService.logout()
+        isAuthenticated = false
     }
 }

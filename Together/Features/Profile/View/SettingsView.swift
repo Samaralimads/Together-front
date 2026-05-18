@@ -8,42 +8,38 @@
 import SwiftUI
 import StoreKit
 
-
 struct SettingsView: View {
     @Environment(\.requestReview) var requestReview
-    
+    @Environment(AppState.self) private var appState
     @State private var showLogoutAlert = false
-    
+
     var body: some View {
-        Background{
-            
+        Background {
             List {
-                
                 Section {
                     NavigationLink("About you") {
                         AboutYouView()
                     }
-                    
+
                     NavigationLink("Your relationship") {
                         AboutRelationshipView()
                     }
-                    
+
                     NavigationLink("Notification Settings") {
                         NotificationView()
                     }
-                    
+
                     Button("Help & Support") {
-                        //TODO: send email to support
+                        // TODO: send email to support
                     }
-                    
+
                     Button("Leave us a review") {
                         requestReview()
                     }
-                    
                 }
                 .tint(.primary)
                 .padding(.vertical, 10)
-                
+
                 Section {
                     Button(role: .destructive) {
                         showLogoutAlert = true
@@ -53,14 +49,13 @@ struct SettingsView: View {
                     .alert("Log Out", isPresented: $showLogoutAlert) {
                         Button("Cancel", role: .cancel) { }
                         Button("Log out", role: .destructive) {
-                            // TODO: Handle logout
+                            appState.logout()
                         }
                     } message: {
                         Text("Are you sure you want to log out?")
                     }
                 }
                 .padding(.vertical, 8)
-                
             }
             .scrollContentBackground(.hidden)
             .navigationBarTitleDisplayMode(.inline)
@@ -76,4 +71,5 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
+        .environment(AppState())
 }

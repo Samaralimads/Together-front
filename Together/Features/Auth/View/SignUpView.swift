@@ -9,33 +9,32 @@ import SwiftUI
 
 struct SignUpView: View {
     @State private var viewModel = AuthViewModel()
-    
+    @Environment(AppState.self) private var appState
+
     var body: some View {
-        Background{
-            
+        Background {
             WhiteCard(title: "Create Your Account", description: "Sign up to begin planning meaningful moments as a couple.") {
-                
-                VStack(spacing: 10){
-                    
+
+                VStack(spacing: 10) {
                     InputField(
                         placeholder: "Full Name",
                         type: .name,
                         text: $viewModel.name,
                         isValid: viewModel.isNameValid
                     )
-                    
+
                     InputField(
                         placeholder: "Date of Birth",
                         date: $viewModel.birthDate
                     )
-                    
+
                     InputField(
                         placeholder: "Email",
                         type: .email,
                         text: $viewModel.email,
                         isValid: viewModel.isEmailValid
                     )
-                    
+
                     InputField(
                         placeholder: "Password",
                         type: .password,
@@ -47,7 +46,7 @@ struct SignUpView: View {
                             hasMinLength: viewModel.hasMinLength
                         )
                     )
-                    
+
                     HStack {
                         Spacer()
                         NavigationLink("Forgot your password?") {
@@ -58,20 +57,29 @@ struct SignUpView: View {
                         .fontWeight(.semibold)
                     }
                     .padding(.top, 4)
-                    
                 }
                 .padding(.vertical, 40)
-                
+
+                if let error = viewModel.errorMessage {
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom, 8)
+                }
+
                 Button("Sign Up") {
-                    //add action
+                    Task { await viewModel.signUp() }
                 }
                 .modifier(AccentButtonModifier())
-                
+                .disabled(!viewModel.canSignUp)
+                .opacity(viewModel.canSignUp ? 1 : 0.6)
+
                 Text("or")
                     .foregroundColor(.gray)
-                
-                Button{
-                    
+
+                Button {
+                    // TODO: Sign up with Apple
                 } label: {
                     Text(" Sign up with Apple")
                         .fontWeight(.semibold)
@@ -82,7 +90,7 @@ struct SignUpView: View {
                         .glassEffect()
                         .shadow(color: .black.opacity(0.13), radius: 2, x: 0, y: 4)
                 }
-                
+
                 HStack {
                     Text("Already have an account?")
                     NavigationLink("Sign in") {
@@ -96,9 +104,13 @@ struct SignUpView: View {
                 .padding(.top, 30)
             }
         }
+        .onChange(of: viewModel.isAuthenticated) { _, isAuth in
+            if isAuth { appState.login() }
+        }
     }
 }
 
 #Preview {
     SignUpView()
+        .environment(AppState())
 }
