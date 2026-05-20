@@ -9,6 +9,8 @@ import SwiftUI
 
 struct SignUpView: View {
     @State private var viewModel = AuthViewModel()
+    @State private var signUpTrigger = false
+
     @Environment(AppState.self) private var appState
 
     var body: some View {
@@ -17,7 +19,7 @@ struct SignUpView: View {
 
                 VStack(spacing: 10) {
                     InputField(
-                        placeholder: "Full Name",
+                        placeholder: "Name",
                         type: .name,
                         text: $viewModel.name,
                         isValid: viewModel.isNameValid
@@ -69,7 +71,11 @@ struct SignUpView: View {
                 }
 
                 Button("Sign Up") {
-                    Task { await viewModel.signUp() }
+                    signUpTrigger = true
+                }
+                .task(id: signUpTrigger) {
+                    guard signUpTrigger else { return }
+                    await viewModel.signUp(appState: appState)
                 }
                 .modifier(AccentButtonModifier())
                 .disabled(!viewModel.canSignUp)
@@ -103,9 +109,6 @@ struct SignUpView: View {
                 .font(.footnote)
                 .padding(.top, 30)
             }
-        }
-        .onChange(of: viewModel.isAuthenticated) { _, isAuth in
-            if isAuth { appState.login() }
         }
     }
 }

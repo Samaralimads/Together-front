@@ -33,7 +33,7 @@ struct ForgotPasswordView: View {
                         .padding(.bottom, 8)
                 }
 
-                Button("Reset Password") {
+                Button(isLoading ? "Sending..." : "Reset Password") {
                     Task {
                         isLoading = true
                         errorMessage = nil
@@ -41,7 +41,8 @@ struct ForgotPasswordView: View {
                             try await AuthService.forgotPassword(email: viewModel.email)
                             navigateToCode = true
                         } catch {
-                            errorMessage = error.localizedDescription
+                            print("Forgot password error: \(error)")
+                            errorMessage = "Something went wrong. Please try again."
                         }
                         isLoading = false
                     }

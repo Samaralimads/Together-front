@@ -158,18 +158,18 @@ private extension ActivityView {
                     ForEach(viewModel.activities) { activity in
                         let category = viewModel.categories.first(where: { $0.id == activity.categoryId })
                         let localCategory = Category(
-                            id: UUID(uuidString: activity.categoryId) ?? UUID(),
+                            id: activity.categoryId,
                             name: category?.name ?? "",
                             imageName: viewModel.imageName(for: category?.name ?? "")
                         )
                         let localActivity = Activity(
-                            id: UUID(uuidString: activity.id) ?? UUID(),
+                            id: activity.id,
                             title: activity.title,
                             description: activity.description,
                             budget: activity.budget,
                             duration: activity.duration,
                             isIndoor: activity.isIndoor,
-                            categoryId: UUID(uuidString: activity.categoryId) ?? UUID()
+                            categoryId: activity.categoryId
                         )
                         NavigationLink(destination: ActivityDetailView(activity: localActivity, category: localCategory)) {
                             ActivityCard(activity: localActivity, category: localCategory)

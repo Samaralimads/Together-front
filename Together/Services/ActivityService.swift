@@ -11,17 +11,17 @@ struct ActivityService {
  
     // MARK: - Models
     struct ActivityResponse: Decodable, Identifiable {
-        let id: String
+        let id: UUID
         let title: String
         let description: String
         let budget: String
         let duration: Int
         let isIndoor: Bool
-        let categoryId: String
+        let categoryId: UUID
     }
  
     struct CategoryResponse: Decodable, Identifiable {
-        let id: String
+        let id: UUID
         let name: String
         let imageUrl: String
     }
@@ -65,8 +65,8 @@ struct ActivityService {
     }
  
     // MARK: - Fetch single activity
-    static func fetchActivity(id: String) async throws -> ActivityResponse {
-        return try await APIClient.shared.request("/activities/\(id)", requiresAuth: false)
+    static func fetchActivity(id: UUID) async throws -> ActivityResponse {
+        return try await APIClient.shared.request("/activities/\(id.uuidString)", requiresAuth: false)
     }
  
     // MARK: - Fetch all categories

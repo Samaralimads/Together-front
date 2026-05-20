@@ -10,16 +10,18 @@ struct ImportantDatesCard: View {
     let anniversary: Date
     @Binding var importantDates: [ImportantDate]
     let onAddDate: () -> Void
+    let onDelete: (ImportantDate) -> Void
+    let onEdit: (ImportantDate) -> Void
     @State private var dateToEdit: ImportantDate?
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
                 Text("Important Dates")
                     .font(.custom("IvyJournal-Bold", size: 24))
-                
+
                 Spacer()
-                
+
                 Button {
                     onAddDate()
                 } label: {
@@ -28,39 +30,28 @@ struct ImportantDatesCard: View {
                         .foregroundColor(.orange)
                 }
             }
-            
+
             List {
-                
-                DateRowView(
-                    title: "Anniversary",
-                    date: anniversary,
-                    showsChevron: false
-                )
-                .listRowBackground(Color.clear)
-                
-                
-                ForEach(importantDates) { date in
-                    DateRowView(
-                        title: date.label,
-                        date: date.date,
-                        showsChevron: true
-                    )
+                DateRowView(title: "Anniversary", date: anniversary, showsChevron: false)
                     .listRowBackground(Color.clear)
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        
-                        Button(role: .destructive) {
-                            deleteDate(date)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
+
+                ForEach(importantDates) { date in
+                    DateRowView(title: date.label, date: date.date, showsChevron: true)
+                        .listRowBackground(Color.clear)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                onDelete(date)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+
+                            Button {
+                                dateToEdit = date
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            .tint(.accent)
                         }
-                        
-                        Button {
-                            editDate(date)
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                        .tint(.accent)
-                    }
                 }
             }
             .listStyle(.plain)
@@ -68,45 +59,31 @@ struct ImportantDatesCard: View {
             .scrollDisabled(importantDates.count + 1 <= 5)
         }
         .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 25)
-                .fill(.branco)
-        )
+        .background(RoundedRectangle(cornerRadius: 25).fill(.branco))
         .sheet(item: $dateToEdit) { date in
-            EditImportantDateSheet(
-                importantDates: $importantDates,
-                dateToEdit: date
-            )
+            EditImportantDateSheet(date: date) { updated in
+                onEdit(updated)
+            }
         }
-    }
-    
-   private func deleteDate(_ date: ImportantDate) {
-        importantDates.removeAll { $0.id == date.id }
-    }
-    
-   private func editDate(_ date: ImportantDate) {
-        dateToEdit = date
     }
 }
 
+// MARK: - Date Row
 struct DateRowView: View {
     let title: String
     let date: Date
     let showsChevron: Bool
-    
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.body)
-                
                 Text(date, style: .date)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
-            
             Spacer()
-            
             if showsChevron {
                 Image(systemName: "chevron.right")
                     .foregroundColor(.gray.opacity(0.3))
@@ -115,19 +92,18 @@ struct DateRowView: View {
     }
 }
 
-// MARK: - Add Important Date Sheet
+// MARK: - Add Sheet
 struct AddImportantDateSheet: View {
     @Environment(\.dismiss) var dismiss
-    @Binding var importantDates: [ImportantDate]
+    let onAdd: (String, Date) -> Void
     @State private var label = ""
     @State private var date = Date()
-    
+
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     TextField("Title", text: $label)
-                    
                     DatePicker("Date", selection: $date, displayedComponents: .date)
                 }
             }
@@ -135,15 +111,11 @@ struct AddImportantDateSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
+                    Button("Cancel") { dismiss() }
                 }
-                
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        let newDate = ImportantDate(id: UUID(), label: label, date: date)
-                        importantDates.append(newDate)
+                        onAdd(label, date)
                         dismiss()
                     }
                     .disabled(label.isEmpty)
@@ -154,46 +126,41 @@ struct AddImportantDateSheet: View {
     }
 }
 
-// MARK: - Edit Important Date Sheet
+// MARK: - Edit Sheet
 struct EditImportantDateSheet: View {
     @Environment(\.dismiss) var dismiss
-    @Binding var importantDates: [ImportantDate]
-    let dateToEdit: ImportantDate
-    
+    let date: ImportantDate
+    let onSave: (ImportantDate) -> Void
     @State private var label: String
-    @State private var date: Date
-    
-    init(importantDates: Binding<[ImportantDate]>, dateToEdit: ImportantDate) {
-        self._importantDates = importantDates
-        self.dateToEdit = dateToEdit
-        self._label = State(initialValue: dateToEdit.label)
-        self._date = State(initialValue: dateToEdit.date)
+    @State private var selectedDate: Date
+
+    init(date: ImportantDate, onSave: @escaping (ImportantDate) -> Void) {
+        self.date = date
+        self.onSave = onSave
+        self._label = State(initialValue: date.label)
+        self._selectedDate = State(initialValue: date.date)
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     TextField("Title", text: $label)
-                    
-                    DatePicker("Date", selection: $date, displayedComponents: .date)
+                    DatePicker("Date", selection: $selectedDate, displayedComponents: .date)
                 }
             }
             .navigationTitle("Edit Date")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
+                    Button("Cancel") { dismiss() }
                 }
-                
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        if let index = importantDates.firstIndex(where: { $0.id == dateToEdit.id }) {
-                            importantDates[index].label = label
-                            importantDates[index].date = date
-                        }
+                        var updated = date
+                        updated.label = label
+                        updated.date = selectedDate
+                        onSave(updated)
                         dismiss()
                     }
                     .disabled(label.isEmpty)
@@ -206,19 +173,16 @@ struct EditImportantDateSheet: View {
 }
 
 #Preview {
-    @Previewable @State var anniversary = Date()
     @Previewable @State var importantDates: [ImportantDate] = []
-    @Previewable @State var showAddDate = false
-    
-    Background{
+
+    Background {
         ImportantDatesCard(
-            anniversary: anniversary,
+            anniversary: Date(),
             importantDates: $importantDates,
-            onAddDate: {
-                showAddDate = true
-            }
-        ).sheet(isPresented: $showAddDate) {
-            AddImportantDateSheet(importantDates: $importantDates)}
+            onAddDate: {},
+            onDelete: { _ in },
+            onEdit: { _ in }
+        )
         .padding(20)
     }
 }

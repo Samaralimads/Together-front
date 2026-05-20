@@ -9,24 +9,22 @@ import SwiftUI
 
 struct PairingSucessfulView: View {
     @State private var logoOpacity = 0.0
-    
+    @Environment(AppState.self) private var appState
+
     var body: some View {
-        
-        Background{
-            
+        Background {
             VStack {
-                
                 Text("It's always better")
                     .font(.custom("IvyJournal-LightItalic", size: 36))
                     .kerning(4)
                     .foregroundColor(.preto)
-                
+
                 Text("Together")
                     .font(.custom("IvyJournal-SemiBoldItalic", size: 64))
                     .foregroundColor(.preto)
-                
+
                 Spacer()
-                
+
                 Image("logoPaired")
                     .resizable()
                     .scaledToFit()
@@ -37,32 +35,35 @@ struct PairingSucessfulView: View {
                             logoOpacity = 0.9
                         }
                     }
-                
+
                 Spacer()
-                
-                Text("You are now paired with Name!")
+
+                Text("You are now paired!")
                     .font(.custom("IvyJournal-Thin", size: 27))
                     .foregroundColor(.preto)
                     .multilineTextAlignment(.center)
-                
-                NavigationLink(destination: SignUpView()) {
+
+                Button {
+                    appState.completeOnboarding()
+                } label: {
                     Text("Go to dashboard")
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(.preto)
                         .frame(maxWidth: .infinity)
                         .frame(height: 60)
                         .background(Color.branco)
-                        .cornerRadius(50
-                        )
+                        .cornerRadius(50)
                 }
                 .padding(.top, 30)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 40)
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
 #Preview {
     PairingSucessfulView()
+        .environment(AppState())
 }

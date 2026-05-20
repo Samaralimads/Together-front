@@ -28,7 +28,7 @@ struct AuthService {
     }
 
     struct UserResponse: Decodable {
-        let id: String
+        let id: UUID
         let firstName: String
         let birthDate: String
         let email: String

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SignInView: View {
     @State private var viewModel = AuthViewModel()
+    @State private var signInTrigger = false
     @Environment(AppState.self) private var appState
 
     var body: some View {
@@ -57,7 +58,11 @@ struct SignInView: View {
                 }
 
                 Button("Sign In") {
-                    Task { await viewModel.signIn() }
+                    signInTrigger = true
+                }
+                .task(id: signInTrigger) {
+                    guard signInTrigger else { return }
+                    await viewModel.signUp(appState: appState)
                 }
                 .modifier(AccentButtonModifier())
                 .disabled(!viewModel.canSignIn)
@@ -91,9 +96,6 @@ struct SignInView: View {
                 .font(.footnote)
                 .padding(.top, 30)
             }
-        }
-        .onChange(of: viewModel.isAuthenticated) { _, isAuth in
-            if isAuth { appState.login() }
         }
     }
 }

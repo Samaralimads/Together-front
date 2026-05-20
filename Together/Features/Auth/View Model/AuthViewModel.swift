@@ -13,40 +13,36 @@ class AuthViewModel {
     var email: String = ""
     var password: String = ""
     var birthDate: Date? = nil
-    
+
     var isLoading: Bool = false
     var errorMessage: String? = nil
-    var isAuthenticated: Bool = false
+    var isNewUser: Bool = false
 
-    // MARK: - Password validation
     var hasUppercase: Bool {
         password.range(of: "[A-Z]", options: .regularExpression) != nil
     }
-    
+
     var hasNumber: Bool {
         password.range(of: "[0-9]", options: .regularExpression) != nil
     }
-    
+
     var hasMinLength: Bool {
         password.count >= 8
     }
-    
+
     var isPasswordValid: Bool {
         hasUppercase && hasNumber && hasMinLength
     }
-    
-    // MARK: - Email validation
+
     var isEmailValid: Bool {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
     }
 
-    // MARK: - Name validation
     var isNameValid: Bool {
         name.count >= 2
     }
 
-    // MARK: - Birth date validation
     var isBirthDateValid: Bool {
         birthDate != nil
     }
@@ -60,7 +56,7 @@ class AuthViewModel {
     }
 
     // MARK: - Sign Up
-    func signUp() async {
+    func signUp(appState: AppState) async {
         guard canSignUp, let birthDate else { return }
         isLoading = true
         errorMessage = nil
@@ -77,33 +73,46 @@ class AuthViewModel {
                 email: email,
                 password: password
             )
-            isAuthenticated = true
+            isNewUser = true
+            appState.register()
+        } catch let error as APIError {
+            print("Sign up error: \(error)")
+            switch error {
+            case .serverError(409, _):
+                errorMessage = "An account with this email already exists."
+            default:
+                errorMessage = "Something went wrong. Please try again."
+            }
         } catch {
-            errorMessage = error.localizedDescription
+            print("Sign up error: \(error)")
+            errorMessage = "Something went wrong. Please try again."
         }
 
         isLoading = false
     }
 
     // MARK: - Sign In
-    func signIn() async {
+    func signIn(appState: AppState) async {
         guard canSignIn else { return }
         isLoading = true
         errorMessage = nil
 
         do {
             _ = try await AuthService.login(email: email, password: password)
-            isAuthenticated = true
+            appState.login()
+        } catch let error as APIError {
+            print("Sign in error: \(error)")
+            switch error {
+            case .serverError(401, _):
+                errorMessage = "Incorrect email or password."
+            default:
+                errorMessage = "Something went wrong. Please try again."
+            }
         } catch {
-            errorMessage = error.localizedDescription
+            print("Sign in error: \(error)")
+            errorMessage = "Something went wrong. Please try again."
         }
 
         isLoading = false
-    }
-
-    // MARK: - Logout
-    func logout() {
-        AuthService.logout()
-        isAuthenticated = false
     }
 }
