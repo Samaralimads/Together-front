@@ -10,6 +10,7 @@ import SwiftUI
 struct SignInView: View {
     @State private var viewModel = AuthViewModel()
     @State private var signInTrigger = false
+    @State private var showForgotPassword = false
     @Environment(AppState.self) private var appState
 
     var body: some View {
@@ -35,17 +36,19 @@ struct SignInView: View {
                             hasMinLength: viewModel.hasMinLength
                         )
                     )
-
+                    
                     HStack {
                         Spacer()
-                        NavigationLink("Forgot your password?") {
-                            ForgotPasswordView()
+                        Button("Forgot your password?") {
+                            showForgotPassword = true
                         }
                         .font(.footnote)
                         .foregroundColor(.accent)
                         .fontWeight(.semibold)
+                        .zIndex(1)
                     }
-                    .padding(.top, 4)
+                    .padding(.bottom, 16)
+                    
                 }
                 .padding(.vertical, 40)
 
@@ -62,7 +65,7 @@ struct SignInView: View {
                 }
                 .task(id: signInTrigger) {
                     guard signInTrigger else { return }
-                    await viewModel.signUp(appState: appState)
+                    await viewModel.signIn(appState: appState)
                 }
                 .modifier(AccentButtonModifier())
                 .disabled(!viewModel.canSignIn)
@@ -96,6 +99,9 @@ struct SignInView: View {
                 .font(.footnote)
                 .padding(.top, 30)
             }
+        }
+        .navigationDestination(isPresented: $showForgotPassword) {
+            ForgotPasswordView()
         }
     }
 }

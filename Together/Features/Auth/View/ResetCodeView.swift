@@ -11,8 +11,12 @@ import Combine
 struct ResetCodeView: View {
     let email: String
     @State private var code: String = ""
-    @State private var timeRemaining: Int = 600 // 10 minutes in seconds
+    @State private var verifiedCode: String = ""
+    @State private var timeRemaining: Int = 600
     @State private var timerExpired: Bool = false
+    @State private var isLoading = false
+    @State private var errorMessage: String? = nil
+    @State private var navigateToReset = false
     @FocusState private var isFocused: Bool
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -32,13 +36,30 @@ struct ResetCodeView: View {
                     }
                 }
                 .padding(.vertical, 40)
-                .onTapGesture {
-                    isFocused = true
+                .onTapGesture { isFocused = true }
+
+                if let error = errorMessage {
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom, 8)
                 }
 
                 if timerExpired {
                     Button("Resend code") {
-                        // TODO: Call forgot-password again
+                        Task {
+                            do {
+                                try await AuthService.forgotPassword(email: email)
+                                timeRemaining = 600
+                                timerExpired = false
+                                code = ""
+                                errorMessage = nil
+                            } catch {
+                                print("Resend code error: \(error)")
+                                errorMessage = "Something went wrong. Please try again."
+                            }
+                        }
                     }
                     .font(.footnote)
                     .foregroundColor(.accent)
@@ -50,7 +71,6 @@ struct ResetCodeView: View {
                         .contentTransition(.numericText())
                 }
 
-                // Hidden TextField
                 TextField("", text: $code)
                     .keyboardType(.numberPad)
                     .focused($isFocused)
@@ -58,16 +78,26 @@ struct ResetCodeView: View {
                     .frame(height: 0)
             }
         }
-        .onAppear {
-            isFocused = true
-        }
+        .onAppear { isFocused = true }
         .onChange(of: code) { _, newValue in
             if newValue.count > 6 {
                 code = String(newValue.prefix(6))
             }
-            // TODO: Auto-submit when 6 digits entered
             if newValue.count == 6 {
                 isFocused = false
+                Task {
+                    isLoading = true
+                    errorMessage = nil
+                    do {
+                        try await AuthService.verifyCode(email: email, code: newValue)
+                        verifiedCode = newValue
+                        navigateToReset = true
+                    } catch {
+                        print("Verify code error: \(error)")
+                        errorMessage = "Invalid or expired code. Please try again."
+                    }
+                    isLoading = false
+                }
             }
         }
         .onReceive(timer) { _ in
@@ -76,6 +106,9 @@ struct ResetCodeView: View {
             } else {
                 timerExpired = true
             }
+        }
+        .navigationDestination(isPresented: $navigateToReset) {
+            ResetPasswordView(email: email, code: verifiedCode)
         }
     }
 

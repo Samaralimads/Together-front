@@ -48,17 +48,6 @@ struct SignUpView: View {
                             hasMinLength: viewModel.hasMinLength
                         )
                     )
-
-                    HStack {
-                        Spacer()
-                        NavigationLink("Forgot your password?") {
-                            ForgotPasswordView()
-                        }
-                        .font(.footnote)
-                        .foregroundColor(.accent)
-                        .fontWeight(.semibold)
-                    }
-                    .padding(.top, 4)
                 }
                 .padding(.vertical, 40)
 

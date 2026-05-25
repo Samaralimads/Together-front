@@ -42,7 +42,10 @@ struct WelcomeView: View {
                 
                 VStack(spacing: 16) {
                     
-                    NavigationLink(destination: SignUpView()) {
+                    NavigationLink(
+                        destination:
+                            SignUpView().navigationBarBackButtonHidden(true))
+                    {
                         Text("Create Account")
                             .font(.system(size: 20, weight: .medium))
                             .foregroundColor(.preto)
@@ -53,7 +56,9 @@ struct WelcomeView: View {
                             )
                     }
                     
-                    NavigationLink(destination: SignInView()) {
+                    NavigationLink(destination:
+                                    SignInView().navigationBarBackButtonHidden(true))
+                    {
                         Text("Log in")
                             .font(.system(size: 20, weight: .medium))
                             .foregroundColor(.branco)

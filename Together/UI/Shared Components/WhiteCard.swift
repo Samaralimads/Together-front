@@ -27,7 +27,7 @@ struct WhiteCard<Content: View>: View {
     
     
     var body: some View {
-        ScrollView{
+//        ScrollView{
             
             
             VStack() {
@@ -59,7 +59,7 @@ struct WhiteCard<Content: View>: View {
             .padding()
         }
     }
-}
+//}
 
 
 
