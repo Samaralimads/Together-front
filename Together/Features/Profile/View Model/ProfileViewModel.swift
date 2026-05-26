@@ -10,12 +10,12 @@ import SwiftUI
 
 @Observable
 class ProfileViewModel {
-    var user: ProfileService.UserResponse? = nil
-    var couple: ProfileService.CoupleResponse? = nil
+    var user: User? = nil
+    var couple: Couple? = nil
     var importantDates: [ImportantDate] = []
     var isLoading: Bool = false
     var errorMessage: String? = nil
-    var isPaired: Bool { couple != nil }
+    var isPaired: Bool { couple?.partner != nil }
 
     // MARK: - Load all profile data
     func load() async {
@@ -31,7 +31,6 @@ class ProfileViewModel {
         do {
             couple = try await ProfileService.fetchCouple()
         } catch {
-            // Not paired yet — not an error
             couple = nil
         }
 
@@ -94,13 +93,16 @@ class ProfileViewModel {
     }
 
     var partner2Initial: String? {
-        guard let partnerName = couple?.partner.firstName else { return nil }
+        guard let partnerName = couple?.partner?.firstName else { return nil }
         return String(partnerName.prefix(1).uppercased())
     }
 
     var displayName: String {
-        guard let user, let couple else { return user?.firstName ?? "" }
-        return "\(user.firstName) & \(couple.partner.firstName)"
+        guard let user else { return "" }
+        if let partner = couple?.partner {
+            return "\(user.firstName) & \(partner.firstName)"
+        }
+        return user.firstName
     }
 
     private func dateFormatter() -> DateFormatter {

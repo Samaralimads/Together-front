@@ -9,7 +9,7 @@ import Foundation
 
 struct AuthService {
 
-    // MARK: - Models
+    // MARK: - Request Models
     struct RegisterRequest: Encodable {
         let firstName: String
         let birthDate: String
@@ -20,19 +20,6 @@ struct AuthService {
     struct LoginRequest: Encodable {
         let email: String
         let password: String
-    }
-
-    struct AuthResponse: Decodable {
-        let token: String
-        let user: UserResponse
-    }
-
-    struct UserResponse: Decodable {
-        let id: UUID
-        let firstName: String
-        let birthDate: String
-        let email: String
-        let profilePicture: String?
     }
 
     struct ForgotPasswordRequest: Encodable {
@@ -48,6 +35,12 @@ struct AuthService {
         let email: String
         let code: String
         let newPassword: String
+    }
+
+    // MARK: - Response Models
+    struct AuthResponse: Decodable {
+        let token: String
+        let user: User
     }
 
     // MARK: - Register

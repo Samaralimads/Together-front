@@ -51,7 +51,7 @@ struct ActivityCard: View {
 
 #Preview {
    let activity = Activity(id: UUID(), title: "Brunch at a Local Café", description: "Enjoy a slow Sunday morning with pastries and coffee.", budget: "€€", duration: 120, isIndoor: true, categoryId: UUID())
-   let category = Category(id: UUID(), name: "Food & Drinks", imageName: "Food&Drinks")
+   let category = Category(id: UUID(), name: "Food & Drinks")
    Background {
        ActivityCard(activity: activity, category: category)
            .padding(20)

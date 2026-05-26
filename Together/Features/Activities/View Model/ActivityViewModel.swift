@@ -9,8 +9,8 @@ import Foundation
 
 @Observable
 class ActivityViewModel {
-    var activities: [ActivityService.ActivityResponse] = []
-    var categories: [ActivityService.CategoryResponse] = []
+    var activities: [Activity] = []
+    var categories: [Category] = []
     var isLoading: Bool = false
     var errorMessage: String? = nil
 
@@ -53,17 +53,5 @@ class ActivityViewModel {
         }
 
         isLoading = false
-    }
-
-    // MARK: - Map category name to local image asset
-    func imageName(for categoryName: String) -> String {
-        switch categoryName {
-        case "Food & Drinks": return "Food&Drinks"
-        case "Nature":        return "Nature"
-        case "Creative":      return "Creative"
-        case "Culture":       return "Culture"
-        case "Active":        return "Active"
-        default:              return "Sparkles"
-        }
     }
 }

@@ -13,11 +13,10 @@ enum MyDatesTab {
 
 struct MyDatesView: View {
     @State private var selectedTab: MyDatesTab = .favorites
-
-    // TODO: Replace with ViewModel data
     @State private var favorites: [Activity] = []
     @State private var upcoming: [Activity] = []
     @State private var history: [Activity] = []
+    @State private var isLoading = false
 
     private var currentList: [Activity] {
         switch selectedTab {
@@ -44,12 +43,16 @@ struct MyDatesView: View {
 
                     tabPicker
 
-                    if currentList.isEmpty {
+                    if isLoading {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 40)
+                    } else if currentList.isEmpty {
                         emptyState
                     } else {
                         VStack(spacing: 16) {
                             ForEach(currentList) { activity in
-                                let category = Category(id: activity.categoryId, name: "", imageName: "Sparkles")
+                                let category = Category(id: activity.categoryId, name: "")
                                 NavigationLink(destination: ActivityDetailView(activity: activity, category: category)) {
                                     ActivityCard(activity: activity, category: category)
                                 }
@@ -63,8 +66,28 @@ struct MyDatesView: View {
                 .padding(.bottom, 40)
             }
         }
+        .task {
+            await loadFavorites()
+        }
+        .onChange(of: selectedTab) { _, tab in
+            if tab == .favorites {
+                Task { await loadFavorites() }
+            }
+        }
     }
 
+    // MARK: - Load
+    private func loadFavorites() async {
+        isLoading = true
+        do {
+            favorites = try await ActivityService.fetchFavorites()
+        } catch {
+            print("Fetch favorites error: \(error)")
+        }
+        isLoading = false
+    }
+
+    // MARK: - Tab Picker
     private var tabPicker: some View {
         HStack(spacing: 0) {
             tabButton(title: "FAVORITES", icon: "heart.fill", tab: .favorites)
@@ -106,6 +129,7 @@ struct MyDatesView: View {
         }
     }
 
+    // MARK: - Empty State
     private var emptyState: some View {
         VStack(spacing: 12) {
             Text(emptyIcon)

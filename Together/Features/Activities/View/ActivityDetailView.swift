@@ -15,7 +15,6 @@ struct ActivityDetailView: View {
     @State private var selectedTime = Date()
     @State private var isFavorite = false
     
-    
     var body: some View {
         Background {
             
@@ -89,13 +88,25 @@ struct ActivityDetailView: View {
                         // Save to favorites
                         
                         Button {
-                            withAnimation {
-                                isFavorite.toggle()
-                                //TODO: Add logic
-
+                            Task {
+                                do {
+                                    if isFavorite {
+                                        try await ActivityService.removeFavorite(activityId: activity.id)
+                                    } else {
+                                        try await ActivityService.addFavorite(activityId: activity.id)
+                                    }
+                                    withAnimation {
+                                        isFavorite.toggle()
+                                    }
+                                } catch {
+                                    print("Favorite toggle error: \(error)")
+                                }
                             }
                         } label: {
-                            Label(isFavorite ? "Saved to favorites" : "Save to favorites", systemImage: isFavorite ? "heart.fill": "heart")
+                            Label(
+                                isFavorite ? "Saved to favorites" : "Save to favorites",
+                                systemImage: isFavorite ? "heart.fill" : "heart"
+                            )
                         }
                         .contentTransition(.symbolEffect(.replace.downUp.byLayer, options: .nonRepeating))
                         .foregroundColor(.orange)
@@ -108,18 +119,22 @@ struct ActivityDetailView: View {
                 .frame(height: 500)
             }
             .padding(.horizontal, 20)
-
+        }
+        .task {
+            do {
+                let favorites = try await ActivityService.fetchFavorites()
+                isFavorite = favorites.contains(where: { $0.id == activity.id })
+            } catch {
+                print("Fetch favorites error: \(error)")
+            }
         }
     }
-    
 }
 
 #Preview {
     let activity = Activity(id: UUID(), title: "Pottery Workshop", description: "Create something meaningful side by side.", budget: "€€€", duration: 180, isIndoor: true, categoryId: UUID())
-    let category = Category(id: UUID(), name: "Creative", imageName: "Creative")
+    let category = Category(id: UUID(), name: "Creative")
     NavigationStack {
         ActivityDetailView(activity: activity, category: category)
     }
 }
-
-

@@ -9,32 +9,7 @@ import Foundation
 
 struct ProfileService {
 
-    // MARK: - Models
-    struct UserResponse: Decodable {
-        let id: UUID
-        let firstName: String
-        let birthDate: String
-        let email: String
-        let profilePicture: String?
-    }
-
-    struct CoupleResponse: Decodable {
-        let id: UUID
-        let relationshipStartDate: String
-        let partner: PartnerResponse
-    }
-
-    struct PartnerResponse: Decodable {
-        let id: UUID
-        let firstName: String
-    }
-
-    struct ImportantDateResponse: Decodable, Identifiable {
-        let id: UUID
-        let label: String
-        let date: String
-    }
-
+    // MARK: - Request Models
     struct UpdateUserRequest: Encodable {
         let firstName: String?
         let email: String?
@@ -46,19 +21,26 @@ struct ProfileService {
         let date: String
     }
 
+    // MARK: - Response Models
+    struct ImportantDateResponse: Decodable, Identifiable {
+        let id: UUID
+        let label: String
+        let date: String
+    }
+
     // MARK: - Fetch current user
-    static func fetchMe() async throws -> UserResponse {
+    static func fetchMe() async throws -> User {
         return try await APIClient.shared.request("/users/me")
     }
 
     // MARK: - Update current user
-    static func updateMe(firstName: String? = nil, email: String? = nil, profilePicture: String? = nil) async throws -> UserResponse {
+    static func updateMe(firstName: String? = nil, email: String? = nil, profilePicture: String? = nil) async throws -> User {
         let body = UpdateUserRequest(firstName: firstName, email: email, profilePicture: profilePicture)
         return try await APIClient.shared.request("/users/me", method: "PUT", body: body)
     }
 
     // MARK: - Fetch couple
-    static func fetchCouple() async throws -> CoupleResponse {
+    static func fetchCouple() async throws -> Couple {
         return try await APIClient.shared.request("/couples/me")
     }
 

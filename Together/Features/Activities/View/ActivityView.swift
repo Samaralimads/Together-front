@@ -103,7 +103,7 @@ private extension ActivityView {
                     categoryChip(
                         title: category.name,
                         isSelected: viewModel.selectedCategoryName == category.name,
-                        imageName: viewModel.imageName(for: category.name)
+                        imageName: category.imageName
                     ) {
                         viewModel.selectedCategoryName = category.name
                         Task { await viewModel.applyFilters() }
@@ -159,20 +159,10 @@ private extension ActivityView {
                         let category = viewModel.categories.first(where: { $0.id == activity.categoryId })
                         let localCategory = Category(
                             id: activity.categoryId,
-                            name: category?.name ?? "",
-                            imageName: viewModel.imageName(for: category?.name ?? "")
+                            name: category?.name ?? ""
                         )
-                        let localActivity = Activity(
-                            id: activity.id,
-                            title: activity.title,
-                            description: activity.description,
-                            budget: activity.budget,
-                            duration: activity.duration,
-                            isIndoor: activity.isIndoor,
-                            categoryId: activity.categoryId
-                        )
-                        NavigationLink(destination: ActivityDetailView(activity: localActivity, category: localCategory)) {
-                            ActivityCard(activity: localActivity, category: localCategory)
+                        NavigationLink(destination: ActivityDetailView(activity: activity, category: localCategory)) {
+                            ActivityCard(activity: activity, category: localCategory)
                         }
                     }
                 }

@@ -9,7 +9,7 @@ import Foundation
 
 struct CoupleService {
 
-    // MARK: - Models
+    // MARK: - Request Models
     struct CreateCoupleRequest: Encodable {
         let relationshipStartDate: String
     }
@@ -19,23 +19,13 @@ struct CoupleService {
         let relationshipStartDate: String
     }
 
-    struct CoupleResponse: Decodable {
-        let id: UUID
-        let relationshipStartDate: String
-        let partner: PartnerResponse?
-    }
-
-    struct PartnerResponse: Decodable {
-        let id: UUID
-        let firstName: String
-    }
-
+    // MARK: - Response Models
     struct InvitationResponse: Decodable {
         let code: String
     }
 
     // MARK: - Create couple (User 1)
-    static func createCouple(anniversaryDate: Date) async throws -> CoupleResponse {
+    static func createCouple(anniversaryDate: Date) async throws -> Couple {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.timeZone = TimeZone(identifier: "UTC")
@@ -44,8 +34,7 @@ struct CoupleService {
     }
 
     // MARK: - Join couple (User 2)
-    static func joinCouple(invitationCode: String) async throws -> CoupleResponse {
-        // We send a placeholder date since User 1 already set it
+    static func joinCouple(invitationCode: String) async throws -> Couple {
         let body = JoinCoupleRequest(invitationCode: invitationCode, relationshipStartDate: "2000-01-01")
         return try await APIClient.shared.request("/couples/join", method: "POST", body: body)
     }
@@ -56,7 +45,7 @@ struct CoupleService {
     }
 
     // MARK: - Get my couple
-    static func getMyCouple() async throws -> CoupleResponse {
+    static func getMyCouple() async throws -> Couple {
         return try await APIClient.shared.request("/couples/me")
     }
 }

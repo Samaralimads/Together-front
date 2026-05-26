@@ -8,24 +8,7 @@
 import Foundation
  
 struct ActivityService {
- 
-    // MARK: - Models
-    struct ActivityResponse: Decodable, Identifiable {
-        let id: UUID
-        let title: String
-        let description: String
-        let budget: String
-        let duration: Int
-        let isIndoor: Bool
-        let categoryId: UUID
-    }
- 
-    struct CategoryResponse: Decodable, Identifiable {
-        let id: UUID
-        let name: String
-        let imageUrl: String
-    }
- 
+
     // MARK: - Fetch all activities with optional filters
     static func fetchActivities(
         category: String? = nil,
@@ -33,10 +16,10 @@ struct ActivityService {
         budget: String? = nil,
         duration: String? = nil,
         location: String? = nil
-    ) async throws -> [ActivityResponse] {
+    ) async throws -> [Activity] {
         var components = URLComponents(string: "http://127.0.0.1:8080/activities")!
         var queryItems: [URLQueryItem] = []
- 
+
         if let category  { queryItems.append(URLQueryItem(name: "category", value: category)) }
         if let search    { queryItems.append(URLQueryItem(name: "search", value: search)) }
         if let budget    { queryItems.append(URLQueryItem(name: "budget", value: budget)) }
@@ -48,29 +31,42 @@ struct ActivityService {
         }
  
         guard let url = components.url else { throw APIError.invalidURL }
- 
+
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
- 
+
         let (data, response) = try await URLSession.shared.data(for: request)
- 
+
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
             throw APIError.serverError(0, "Failed to fetch activities.")
         }
- 
+
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return try decoder.decode([ActivityResponse].self, from: data)
+        return try decoder.decode([Activity].self, from: data)
     }
- 
+
     // MARK: - Fetch single activity
-    static func fetchActivity(id: UUID) async throws -> ActivityResponse {
+    static func fetchActivity(id: UUID) async throws -> Activity {
         return try await APIClient.shared.request("/activities/\(id.uuidString)", requiresAuth: false)
     }
  
     // MARK: - Fetch all categories
-    static func fetchCategories() async throws -> [CategoryResponse] {
+    static func fetchCategories() async throws -> [Category] {
         return try await APIClient.shared.request("/categories", requiresAuth: false)
+    }
+
+    // MARK: - Favorites
+    static func fetchFavorites() async throws -> [Activity] {
+        return try await APIClient.shared.request("/favorites")
+    }
+
+    static func addFavorite(activityId: UUID) async throws {
+        try await APIClient.shared.requestEmpty("/favorites/\(activityId.uuidString)", method: "POST")
+    }
+
+    static func removeFavorite(activityId: UUID) async throws {
+        try await APIClient.shared.requestEmpty("/favorites/\(activityId.uuidString)", method: "DELETE")
     }
 }
