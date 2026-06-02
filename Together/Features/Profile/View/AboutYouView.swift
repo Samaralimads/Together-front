@@ -12,7 +12,7 @@ struct AboutYouView: View {
     @State private var name = ""
     @State private var email = ""
     @State private var showDeleteAccountAlert = false
-    @State private var isSaving = false
+    @Environment(AppState.self) private var appState
 
     var body: some View {
         Background {
@@ -46,20 +46,28 @@ struct AboutYouView: View {
                 .tint(.primary)
                 .padding(.vertical, 10)
 
+                if let error = viewModel.deleteError {
+                    Section {
+                        Text(error)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
+                }
+
                 Section {
                     Button(role: .destructive) {
                         showDeleteAccountAlert = true
                     } label: {
-                        Text("Delete Account")
-                    }
-                    .alert("Delete Account", isPresented: $showDeleteAccountAlert) {
-                        Button("Cancel", role: .cancel) { }
-                        Button("Delete", role: .destructive) {
-                            // TODO: Handle account deletion
+                        if viewModel.isDeleting {
+                            HStack {
+                                ProgressView()
+                                Text("Deleting…")
+                            }
+                        } else {
+                            Text("Delete Account")
                         }
-                    } message: {
-                        Text("This action cannot be undone. All your data will be permanently deleted.")
                     }
+                    .disabled(viewModel.isDeleting)
                 }
                 .padding(.vertical, 9)
             }
@@ -73,15 +81,10 @@ struct AboutYouView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         Task {
-                            isSaving = true
-                            _ = try? await ProfileService.updateMe(
-                                firstName: name.isEmpty ? nil : name,
-                                email: email.isEmpty ? nil : email
-                            )
-                            isSaving = false
+                            await viewModel.saveProfile(firstName: name, email: email)
                         }
                     }
-                    .disabled(isSaving)
+                    .disabled(viewModel.isSaving)
                 }
             }
         }
@@ -90,8 +93,21 @@ struct AboutYouView: View {
             name = viewModel.user?.firstName ?? ""
             email = viewModel.user?.email ?? ""
         }
+        .alert("Delete Account", isPresented: $showDeleteAccountAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                Task {
+                    await viewModel.deleteAccount()
+                    appState.logout()
+                }
+            }
+        } message: {
+            Text("This action cannot be undone. All your data will be permanently deleted.")
+        }
     }
 }
+
 #Preview {
     AboutYouView()
+        .environment(AppState())
 }

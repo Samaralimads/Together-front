@@ -16,6 +16,9 @@ class ProfileViewModel {
     var isLoading: Bool = false
     var errorMessage: String? = nil
     var isPaired: Bool { couple?.partner != nil }
+    var isSaving: Bool = false
+    var isDeleting: Bool = false
+    var deleteError: String? = nil
 
     // MARK: - Load all profile data
     func load() async {
@@ -42,6 +45,28 @@ class ProfileViewModel {
         }
 
         isLoading = false
+    }
+
+    // MARK: - Save profile
+    func saveProfile(firstName: String, email: String) async {
+        isSaving = true
+        _ = try? await ProfileService.updateMe(
+            firstName: firstName.isEmpty ? nil : firstName,
+            email: email.isEmpty ? nil : email
+        )
+        isSaving = false
+    }
+
+    // MARK: - Delete account
+    func deleteAccount() async {
+        isDeleting = true
+        deleteError = nil
+        do {
+            try await APIClient.shared.requestEmpty("/users/me", method: "DELETE")
+        } catch {
+            deleteError = "Could not delete your account. Please try again."
+            isDeleting = false
+        }
     }
 
     // MARK: - Add important date
