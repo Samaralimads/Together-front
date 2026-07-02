@@ -29,15 +29,15 @@ struct PlannedActivityService {
     }
 
     // MARK: - Propose
-    static func propose(activityId: UUID, date: Date, reminderEnabled: Bool = false, reminderDaysBefore: Int? = nil) async throws -> PlannedActivity {
+    static func propose(activityId: UUID, date: Date) async throws -> PlannedActivity {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm"
         formatter.timeZone = TimeZone(identifier: "UTC")
         let body = ProposeRequest(
             activityId: activityId,
             proposedDate: formatter.string(from: date),
-            reminderEnabled: reminderEnabled,
-            reminderDaysBefore: reminderDaysBefore
+            reminderEnabled: false,
+            reminderDaysBefore: nil
         )
         return try await APIClient.shared.request("/planned-activities", method: "POST", body: body)
     }

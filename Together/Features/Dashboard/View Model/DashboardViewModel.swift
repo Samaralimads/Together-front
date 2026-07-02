@@ -18,29 +18,25 @@ class DashboardViewModel {
     // MARK: - Load
     func load() async {
         isLoading = true
-
         do { user = try await ProfileService.fetchMe() } catch { print("Dashboard user error: \(error)") }
         do { couple = try await ProfileService.fetchCouple() } catch { couple = nil }
         await loadActivities()
-
         isLoading = false
     }
 
     func loadActivities() async {
         do {
             let all = try await PlannedActivityService.getCoupleActivities()
-            let now = Date()
+            let now = Date.now
 
-            // Next upcoming accepted date
             nextDate = all
-                .filter { $0.isAccepted && ($0.parsedDate ?? Date.distantPast) > now }
-                .sorted { ($0.parsedDate ?? Date.distantPast) < ($1.parsedDate ?? Date.distantPast) }
+                .filter { $0.isAccepted && ($0.parsedDate ?? .distantPast) > now }
+                .sorted { ($0.parsedDate ?? .distantPast) < ($1.parsedDate ?? .distantPast) }
                 .first
 
-            // Pending proposals from partner (not from me)
             pendingProposals = all
                 .filter { $0.isPending && $0.plannedByUserId != user?.id }
-                .sorted { ($0.parsedDate ?? Date.distantPast) < ($1.parsedDate ?? Date.distantPast) }
+                .sorted { ($0.parsedDate ?? .distantPast) < ($1.parsedDate ?? .distantPast) }
         } catch {
             print("Dashboard activities error: \(error)")
         }
@@ -78,7 +74,7 @@ class DashboardViewModel {
 
     // MARK: - Helpers
     var greeting: String {
-        let hour = Calendar.current.component(.hour, from: Date())
+        let hour = Calendar.current.component(.hour, from: Date.now)
         switch hour {
         case 5..<12:  return "Good Morning"
         case 12..<17: return "Good Afternoon"

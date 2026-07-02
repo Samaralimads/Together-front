@@ -14,17 +14,9 @@ enum MyDatesTab {
 struct MyDatesView: View {
     @State private var selectedTab: MyDatesTab = .favorites
     @State private var favorites: [Activity] = []
-    @State private var upcoming: [Activity] = []
-    @State private var history: [Activity] = []
+    @State private var upcoming: [PlannedActivity] = []
+    @State private var history: [PlannedActivity] = []
     @State private var isLoading = false
-
-    private var currentList: [Activity] {
-        switch selectedTab {
-        case .favorites: return favorites
-        case .upcoming:  return upcoming
-        case .history:   return history
-        }
-    }
 
     var body: some View {
         Background {
@@ -34,11 +26,11 @@ struct MyDatesView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Your Dates")
                             .font(.custom("IvyJournal-Bold", size: 30))
-                            .foregroundColor(.preto)
+                            .foregroundStyle(Color.preto)
 
                         Text("Keep track of your current, past or favorite activities.")
                             .font(.system(size: 15, weight: .regular))
-                            .foregroundColor(.branco)
+                            .foregroundStyle(Color.branco)
                     }
 
                     tabPicker
@@ -47,16 +39,14 @@ struct MyDatesView: View {
                         ProgressView()
                             .frame(maxWidth: .infinity)
                             .padding(.top, 40)
-                    } else if currentList.isEmpty {
-                        emptyState
                     } else {
-                        VStack(spacing: 16) {
-                            ForEach(currentList) { activity in
-                                let category = Category(id: activity.categoryId, name: "")
-                                NavigationLink(destination: ActivityDetailView(activity: activity, category: category)) {
-                                    ActivityCard(activity: activity, category: category)
-                                }
-                            }
+                        switch selectedTab {
+                        case .favorites:
+                            if favorites.isEmpty { emptyState } else { favoritesList }
+                        case .upcoming:
+                            if upcoming.isEmpty { emptyState } else { upcomingList }
+                        case .history:
+                            if history.isEmpty { emptyState } else { historyList }
                         }
                     }
 
@@ -66,25 +56,59 @@ struct MyDatesView: View {
                 .padding(.bottom, 40)
             }
         }
-        .task {
-            await loadFavorites()
-        }
+        .task { await loadAll() }
         .onChange(of: selectedTab) { _, tab in
-            if tab == .favorites {
-                Task { await loadFavorites() }
-            }
+            Task { await loadAll() }
         }
     }
 
     // MARK: - Load
-    private func loadFavorites() async {
+    private func loadAll() async {
         isLoading = true
+        let now = Date.now
+
+        do { favorites = try await ActivityService.fetchFavorites() }
+        catch { print("Favorites error: \(error)") }
+
         do {
-            favorites = try await ActivityService.fetchFavorites()
-        } catch {
-            print("Fetch favorites error: \(error)")
-        }
+            let all = try await PlannedActivityService.getCoupleActivities()
+            upcoming = all
+                .filter { $0.isAccepted && ($0.parsedDate ?? .distantPast) > now }
+                .sorted { ($0.parsedDate ?? .distantPast) < ($1.parsedDate ?? .distantPast) }
+            history = all
+                .filter { $0.isAccepted && ($0.parsedDate ?? .distantFuture) <= now }
+                .sorted { ($0.parsedDate ?? .distantPast) > ($1.parsedDate ?? .distantPast) }
+        } catch { print("Planned activities error: \(error)") }
+
         isLoading = false
+    }
+
+    // MARK: - Lists
+    private var favoritesList: some View {
+        VStack(spacing: 16) {
+            ForEach(favorites) { activity in
+                let category = Category(id: activity.categoryId, name: "")
+                NavigationLink(destination: ActivityDetailView(activity: activity, category: category)) {
+                    ActivityCard(activity: activity, category: category)
+                }
+            }
+        }
+    }
+
+    private var upcomingList: some View {
+        VStack(spacing: 16) {
+            ForEach(upcoming) { planned in
+                UpcomingDateCard(planned: planned)
+            }
+        }
+    }
+
+    private var historyList: some View {
+        VStack(spacing: 16) {
+            ForEach(history) { planned in
+                UpcomingDateCard(planned: planned)
+            }
+        }
     }
 
     // MARK: - Tab Picker
@@ -95,10 +119,7 @@ struct MyDatesView: View {
             tabButton(title: "HISTORY", icon: "clock.arrow.circlepath", tab: .history)
         }
         .padding(5)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.ultraThinMaterial)
-        )
+        .background(RoundedRectangle(cornerRadius: 20).fill(.ultraThinMaterial))
     }
 
     private func tabButton(title: String, icon: String, tab: MyDatesTab) -> some View {
@@ -114,7 +135,7 @@ struct MyDatesView: View {
                 Text(title)
                     .font(.system(size: 11, weight: .bold))
             }
-            .foregroundColor(isSelected ? .preto : .preto.opacity(0.45))
+            .foregroundStyle(isSelected ? Color.preto : Color.preto.opacity(0.45))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 10)
             .background(
@@ -132,18 +153,14 @@ struct MyDatesView: View {
     // MARK: - Empty State
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Text(emptyIcon)
-                .font(.system(size: 40))
-
+            Text(emptyIcon).font(.system(size: 40))
             Text(emptyTitle)
                 .font(.custom("IvyJournal-Bold", size: 20))
-                .foregroundColor(.preto)
-
+                .foregroundStyle(Color.preto)
             Text(emptySubtitle)
                 .font(.system(size: 14, weight: .light))
-                .foregroundColor(.preto.opacity(0.6))
+                .foregroundStyle(Color.preto.opacity(0.6))
                 .multilineTextAlignment(.center)
-
             NavigationLink(destination: ActivityView()) {
                 Text("Discover activities")
             }
@@ -156,26 +173,53 @@ struct MyDatesView: View {
 
     private var emptyIcon: String {
         switch selectedTab {
-        case .favorites: return "🤍"
-        case .upcoming:  return "📅"
-        case .history:   return "🌟"
+        case .favorites: "🤍"
+        case .upcoming:  "📅"
+        case .history:   "🌟"
         }
     }
 
     private var emptyTitle: String {
         switch selectedTab {
-        case .favorites: return "No favorites yet"
-        case .upcoming:  return "Nothing planned"
-        case .history:   return "No dates yet"
+        case .favorites: "No favorites yet"
+        case .upcoming:  "Nothing planned"
+        case .history:   "No dates yet"
         }
     }
 
     private var emptySubtitle: String {
         switch selectedTab {
-        case .favorites: return "Save activities you love and find them here."
-        case .upcoming:  return "Plan your next date and it'll show up here."
-        case .history:   return "Your completed activities will appear here."
+        case .favorites: "Save activities you love and find them here."
+        case .upcoming:  "Plan your next date and it'll show up here."
+        case .history:   "Your completed activities will appear here."
         }
+    }
+}
+
+// MARK: - Upcoming Date Card
+struct UpcomingDateCard: View {
+    let planned: PlannedActivity
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(planned.activityTitle)
+                .font(.custom("IvyJournal-Bold", size: 20))
+                .foregroundStyle(Color.preto)
+
+            if let date = planned.parsedDate {
+                HStack(spacing: 8) {
+                    Label(date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()), systemImage: "calendar")
+                    Label(date.formatted(.dateTime.hour().minute()), systemImage: "clock")
+                }
+                .font(.system(size: 13))
+                .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Color.branco)
+        .clipShape(.rect(cornerRadius: 20))
+        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 5)
     }
 }
 

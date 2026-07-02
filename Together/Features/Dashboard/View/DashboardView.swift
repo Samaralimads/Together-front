@@ -6,18 +6,22 @@
 //
 
 import SwiftUI
+import EventKit
 
 struct DashboardView: View {
     @State private var viewModel = DashboardViewModel()
     @State private var showInvitePartner = false
     @State private var showInviteBannerDismissed = false
     @State private var proposalToReschedule: PlannedActivity? = nil
+    @State private var navigateToDetail = false
+    @State private var detailActivity: Activity? = nil
+    @State private var detailCategory: Category? = nil
+    @State private var calendarError: String? = nil
 
     var body: some View {
         Background {
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-
                     headerSection
 
                     if !viewModel.isPaired && !showInviteBannerDismissed {
@@ -25,16 +29,25 @@ struct DashboardView: View {
                     }
 
                     if let nextDate = viewModel.nextDate {
-                        nextDateCard(for: nextDate)
+                        NextDateCard(
+                            planned: nextDate,
+                            onDetails: {
+                                Task { await fetchAndNavigate(activityId: nextDate.activityId) }
+                            },
+                            onAddToCalendar: {
+                                addToCalendar(planned: nextDate)
+                            }
+                        )
                     } else {
-                        emptyNextDateCard
+                        EmptyNextDateCard()
                     }
 
                     ForEach(viewModel.pendingProposals) { proposal in
                         PendingProposalCard(
                             title: proposal.activityTitle,
-                            date: proposal.parsedDate ?? Date(),
+                            date: proposal.parsedDate ?? Date.now,
                             partnerName: viewModel.partnerName,
+                            note: proposal.note,
                             onAccept: { Task { await viewModel.accept(proposal: proposal) } },
                             onRefuse: { Task { await viewModel.decline(proposal: proposal) } },
                             onReschedule: { proposalToReschedule = proposal }
@@ -49,12 +62,62 @@ struct DashboardView: View {
             }
         }
         .task { await viewModel.load() }
+        .navigationDestination(isPresented: $navigateToDetail) {
+            if let activity = detailActivity, let category = detailCategory {
+                ActivityDetailView(activity: activity, category: category)
+            }
+        }
         .navigationDestination(isPresented: $showInvitePartner) {
             ShareCodePairingView()
         }
         .sheet(item: $proposalToReschedule) { proposal in
             RescheduleSheet(proposal: proposal, partnerName: viewModel.partnerName) { newDate, note in
                 Task { await viewModel.reschedule(proposal: proposal, newDate: newDate, note: note) }
+            }
+        }
+        .alert("Calendar Error", isPresented: .constant(calendarError != nil)) {
+            Button("OK") { calendarError = nil }
+        } message: {
+            Text(calendarError ?? "")
+        }
+    }
+
+    private func fetchAndNavigate(activityId: UUID) async {
+        do {
+            let activity = try await ActivityService.fetchActivity(id: activityId)
+            let category = Category(id: activity.categoryId, name: "")
+            detailActivity = activity
+            detailCategory = category
+            navigateToDetail = true
+        } catch {
+            print("Fetch activity error: \(error)")
+        }
+    }
+
+    private func addToCalendar(planned: PlannedActivity) {
+        guard let date = planned.parsedDate else { return }
+        let store = EKEventStore()
+
+        store.requestFullAccessToEvents { granted, error in
+            guard granted else {
+                DispatchQueue.main.async {
+                    calendarError = "Please allow calendar access in Settings."
+                }
+                return
+            }
+
+            let event = EKEvent(eventStore: store)
+            event.title = planned.activityTitle
+            event.startDate = date
+            event.endDate = date.addingTimeInterval(3600)
+            event.calendar = store.defaultCalendarForNewEvents
+
+            do {
+                try store.save(event, span: .thisEvent)
+            } catch {
+                DispatchQueue.main.async {
+                    calendarError = "Could not add to calendar. Please try again."
+                }
             }
         }
     }
@@ -67,11 +130,11 @@ private extension DashboardView {
         VStack(alignment: .leading, spacing: 2) {
             Text(viewModel.greeting.uppercased())
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(.preto.opacity(0.6))
+                .foregroundStyle(Color.preto.opacity(0.6))
                 .kerning(1)
             Text(viewModel.firstName)
                 .font(.custom("IvyJournal-Bold", size: 30))
-                .foregroundColor(.preto)
+                .foregroundStyle(Color.preto)
         }
     }
 
@@ -82,22 +145,18 @@ private extension DashboardView {
                     HStack(spacing: 1) {
                         Text("It's always better ")
                             .font(.system(size: 18))
-                            .foregroundColor(.preto)
+                            .foregroundStyle(Color.preto)
                         Text("Together")
                             .font(.custom("IvyJournal-Bold", size: 18))
-                            .foregroundColor(.preto)
+                            .foregroundStyle(Color.preto)
                     }
-
                     Text("Send an invitation code to your partner and once connected you can book activities together.")
                         .font(.subheadline)
-                        .foregroundColor(.preto.opacity(0.7))
+                        .foregroundStyle(Color.preto.opacity(0.7))
                         .multilineTextAlignment(.center)
                 }
-
-                Button("Invite your partner") {
-                    showInvitePartner = true
-                }
-                .modifier(AccentButtonModifier())
+                Button("Invite your partner") { showInvitePartner = true }
+                    .modifier(AccentButtonModifier())
             }
             .padding(20)
             .background(RoundedRectangle(cornerRadius: 24).fill(.thinMaterial))
@@ -109,86 +168,17 @@ private extension DashboardView {
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(.preto.opacity(0.5))
+                    .foregroundStyle(Color.preto.opacity(0.5))
                     .padding(10)
             }
         }
     }
-
-    func nextDateCard(for activity: PlannedActivity) -> some View {
-        let date = activity.parsedDate ?? Date()
-        let days = max(Calendar.current.dateComponents([.day], from: Date(), to: date).day ?? 0, 0)
-
-        return VStack(alignment: .leading, spacing: 12) {
-            Text("YOUR NEXT DATE")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(.secondary)
-                .kerning(1)
-
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(activity.activityTitle)
-                        .font(.custom("IvyJournal-Bold", size: 22))
-                        .foregroundColor(.preto)
-
-                    HStack(spacing: 8) {
-                        Label(date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()), systemImage: "calendar")
-                        Label(date.formatted(.dateTime.hour().minute()), systemImage: "clock")
-                    }
-                    .font(.system(size: 13))
-                    .foregroundColor(.secondary)
-                }
-
-                Spacer()
-
-                VStack {
-                    Text("\(days)")
-                        .font(.custom("IvyJournal-Bold", size: 48))
-                        .foregroundColor(.preto)
-                    Text("DAYS TO GO")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(.secondary)
-                        .kerning(0.5)
-                }
-            }
-
-            Button("Details →") {
-                // TODO: navigate to activity detail
-            }
-            .font(.system(size: 15, weight: .semibold))
-            .foregroundColor(.branco)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 10)
-            .background(Color.preto)
-            .cornerRadius(20)
-        }
-        .padding(20)
-        .background(RoundedRectangle(cornerRadius: 24).fill(Color.branco))
-    }
-
-    var emptyNextDateCard: some View {
-        VStack(spacing: 10) {
-            Text("No date planned yet")
-                .font(.system(size: 15))
-                .foregroundColor(.secondary)
-
-            Text("🤔")
-                .font(.system(size: 30))
-
-            Text("Let's find something fun to do!")
-                .font(.system(size: 14, weight: .light))
-                .foregroundColor(.secondary)
-
-            NavigationLink(destination: ActivityView()) {
-                Text("Find an activity")
-            }
-            .modifier(AccentButtonModifier())
-        }
-        .frame(maxWidth: .infinity)
-        .padding(20)
-        .background(RoundedRectangle(cornerRadius: 24).fill(Color.branco))
-    }
 }
+
+// MARK: - Next Date Card
+
+// MARK: - Empty Next Date Card
+
 
 // MARK: - Reschedule Sheet
 struct RescheduleSheet: View {
@@ -197,7 +187,8 @@ struct RescheduleSheet: View {
     let onSend: (Date, String?) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var newDate = Date()
+    @State private var newDate = Date.now
+    @State private var newTime = Date.now
     @State private var note = ""
 
     var body: some View {
@@ -206,40 +197,42 @@ struct RescheduleSheet: View {
                 Text("PROPOSE NEW TIME")
                     .font(.system(size: 12, weight: .semibold))
                     .kerning(1)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
 
                 Text(proposal.activityTitle)
                     .font(.custom("IvyJournal-Italic", size: 28))
-                    .foregroundColor(.preto)
+                    .foregroundStyle(Color.preto)
 
                 if let originalDate = proposal.parsedDate {
                     Text("\(partnerName) suggested \(originalDate.formatted(.dateTime.month(.abbreviated).day())) · \(originalDate.formatted(.dateTime.hour().minute()))")
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
 
-                // Date picker
                 HStack {
-                    Image(systemName: "calendar")
-                        .foregroundColor(.secondary)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("DATE")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(.secondary)
-                            .kerning(0.5)
-                        DatePicker("", selection: $newDate, displayedComponents: .date)
-                            .labelsHidden()
-                    }
-                    Spacer()
+                    Label("", systemImage: "calendar")
+                    DatePicker("Date", selection: $newDate, displayedComponents: .date)
+                        .labelsHidden()
+                        .buttonStyle(.borderless)
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .clipShape(.rect(cornerRadius: 12))
 
-                // Note field
-                TextField("Add a note for \(partnerName) (optional)", text: $note)
+                HStack {
+                    Label("", systemImage: "clock")
+                    DatePicker("Time", selection: $newTime, displayedComponents: .hourAndMinute)
+                        .labelsHidden()
+                        .buttonStyle(.borderless)
+                }
+                .padding()
+                .background(Color(.systemGray6))
+                .clipShape(.rect(cornerRadius: 12))
+
+                TextField("Add a note for \(partnerName) (optional)", text: $note, axis: .vertical)
+                    .lineLimit(3...)
                     .padding()
-                    .background(
+                    .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(Color(.systemGray4), lineWidth: 1)
                     )
@@ -247,28 +240,36 @@ struct RescheduleSheet: View {
                 Spacer()
 
                 HStack(spacing: 12) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(30)
+                    Button("Cancel") { dismiss() }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .clipShape(.rect(cornerRadius: 30))
 
                     Button("Send proposal") {
-                        onSend(newDate, note.isEmpty ? nil : note)
+                        let combined = combinedDate(date: newDate, time: newTime)
+                        onSend(combined, note.isEmpty ? nil : note)
                         dismiss()
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.preto)
-                    .foregroundColor(.white)
-                    .cornerRadius(30)
+                    .foregroundStyle(Color.white)
+                    .clipShape(.rect(cornerRadius: 30))
                 }
             }
             .padding(24)
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.large])
+    }
+
+    private func combinedDate(date: Date, time: Date) -> Date {
+        let calendar = Calendar.current
+        var components = calendar.dateComponents([.year, .month, .day], from: date)
+        let timeComponents = calendar.dateComponents([.hour, .minute], from: time)
+        components.hour = timeComponents.hour
+        components.minute = timeComponents.minute
+        return calendar.date(from: components) ?? date
     }
 }
 
