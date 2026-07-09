@@ -8,50 +8,38 @@
 import SwiftUI
 
 struct TabBar: View {
-    @State private var selectedTab = 0
-    
+
+    private enum AppTab {
+        case dashboard, discover, myDates, profile
+    }
+
+    @State private var selectedTab: AppTab = .dashboard
+
     var body: some View {
         TabView(selection: $selectedTab) {
-            DashboardView()
-                .tabItem {
-                    Label("Dashboard", systemImage: "house")
-                        .environment(
-                            \.symbolVariants,
-                             selectedTab == 0 ? .fill : .none
-                        )
-                }
-                .tag(0)
-            
-            ActivityView()
-                .tabItem {
-                    Image(systemName: selectedTab == 1 ? "sparkle.magnifyingglass" : "magnifyingglass")
-                    Text("Discover")
-                }
-                .tag(1)
-            
-            MyDatesView()
-                .tabItem {
-                    Label("My Dates", systemImage: "heart")
-                        .environment(
-                            \.symbolVariants,
-                             selectedTab == 2 ? .fill : .none
-                        )
-                }
-                .tag(2)
-            
-            ProfileView()
-                .tabItem {
-                    Label("Profile", systemImage: "person")
-                        .environment(
-                            \.symbolVariants,
-                             selectedTab == 3 ? .fill : .none
-                        )
-                }
-                .tag(3)
+            Tab("Dashboard", systemImage: "house", value: .dashboard) {
+                DashboardView()
+            }
+
+            Tab(value: .discover) {
+                ActivityView()
+            } label: {
+                Label(
+                    "Discover",
+                    systemImage: selectedTab == .discover ? "sparkle.magnifyingglass" : "magnifyingglass"
+                )
+            }
+
+            Tab("My Dates", systemImage: "heart", value: .myDates) {
+                MyDatesView()
+            }
+
+            Tab("Profile", systemImage: "person", value: .profile) {
+                ProfileView()
+            }
         }
     }
 }
-
 
 #Preview {
     TabBar()

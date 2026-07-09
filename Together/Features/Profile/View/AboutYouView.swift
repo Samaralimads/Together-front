@@ -95,14 +95,20 @@ struct AboutYouView: View {
         }
         .alert("Delete Account", isPresented: $showDeleteAccountAlert) {
             Button("Cancel", role: .cancel) { }
-            Button("Delete", role: .destructive) {
-                Task {
-                    await viewModel.deleteAccount()
-                    appState.logout()
-                }
-            }
+            Button("Delete", role: .destructive, action: deleteAccount)
         } message: {
             Text("This action cannot be undone. All your data will be permanently deleted.")
+        }
+    }
+
+    // MARK: - Actions
+    private func deleteAccount() {
+        Task {
+            // Only log out if the account was actually deleted —
+            // otherwise stay here so the user can see the error.
+            if await viewModel.deleteAccount() {
+                appState.logout()
+            }
         }
     }
 }

@@ -37,42 +37,29 @@ struct AddCodePairingView: View {
                 if let error = errorMessage {
                     Text(error)
                         .font(.footnote)
-                        .foregroundColor(.red)
+                        .foregroundStyle(.red)
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 8)
                 }
 
-                Button(isLoading ? "Confirming..." : "Confirm") {
-                    Task {
-                        isLoading = true
-                        errorMessage = nil
-                        do {
-                            _ = try await CoupleService.joinCouple(invitationCode: code)
-                            navigateToPairingSuccess = true
-                        } catch {
-                            print("Join couple error: \(error)")
-                            errorMessage = "Invalid or expired code. Please check and try again."
-                        }
-                        isLoading = false
-                    }
-                }
-                .modifier(AccentButtonModifier())
-                .disabled(code.count < 6 || isLoading)
-                .opacity(code.count < 6 ? 0.6 : 1)
+                Button(isLoading ? "Confirming..." : "Confirm", action: confirmCode)
+                    .modifier(AccentButtonModifier())
+                    .disabled(code.count < 6 || isLoading)
+                    .opacity(code.count < 6 ? 0.6 : 1)
 
                 NavigationLink("I'm the first one here") {
                     ShareCodePairingView()
                 }
                 .font(.footnote)
-                .foregroundColor(.accent)
+                .foregroundStyle(Color.accent)
                 .fontWeight(.semibold)
                 .padding(.top, 30)
             }
         }
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isFocused = true
-            }
+        .task {
+            // Small delay so the keyboard appears after the transition settles
+            try? await Task.sleep(for: .seconds(0.5))
+            isFocused = true
         }
         .onChange(of: code) { _, newValue in
             if newValue.count > 6 {
@@ -84,6 +71,23 @@ struct AddCodePairingView: View {
         }
     }
 
+    // MARK: - Actions
+    private func confirmCode() {
+        Task {
+            isLoading = true
+            errorMessage = nil
+            do {
+                _ = try await CoupleService.joinCouple(invitationCode: code)
+                navigateToPairingSuccess = true
+            } catch {
+                print("Join couple error: \(error)")
+                errorMessage = "Invalid or expired code. Please check and try again."
+            }
+            isLoading = false
+        }
+    }
+
+    // MARK: - Helpers
     private func digit(at index: Int) -> String {
         guard index < code.count else { return "" }
         let stringIndex = code.index(code.startIndex, offsetBy: index)

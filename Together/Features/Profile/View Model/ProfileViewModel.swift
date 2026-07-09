@@ -58,14 +58,18 @@ class ProfileViewModel {
     }
 
     // MARK: - Delete account
-    func deleteAccount() async {
+    func deleteAccount() async -> Bool {
         isDeleting = true
         deleteError = nil
+        defer { isDeleting = false }
+
         do {
             try await APIClient.shared.requestEmpty("/users/me", method: "DELETE")
+            return true
         } catch {
+            print("Delete account error: \(error)")
             deleteError = "Could not delete your account. Please try again."
-            isDeleting = false
+            return false
         }
     }
 
@@ -109,7 +113,7 @@ class ProfileViewModel {
 
     // MARK: - Helpers
     var anniversaryDate: Date {
-        guard let dateString = couple?.relationshipStartDate else { return Date() }
+        guard let dateString = couple?.relationshipStartDate else { return Date.now }
         return parsedDate(dateString)
     }
 
@@ -141,6 +145,6 @@ class ProfileViewModel {
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd"
         f.timeZone = TimeZone(identifier: "UTC")
-        return f.date(from: string) ?? Date()
+        return f.date(from: string) ?? Date.now
     }
 }

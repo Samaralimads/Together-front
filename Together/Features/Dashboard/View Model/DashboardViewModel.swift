@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import EventKit
 
 @Observable
 class DashboardViewModel {
@@ -14,6 +15,9 @@ class DashboardViewModel {
     var nextDate: PlannedActivity? = nil
     var pendingProposals: [PlannedActivity] = []
     var isLoading = false
+    var errorMessage: String? = nil
+    var calendarError: String? = nil
+    var showCalendarError = false
 
     // MARK: - Load
     func load() async {
@@ -39,36 +43,80 @@ class DashboardViewModel {
                 .sorted { ($0.parsedDate ?? .distantPast) < ($1.parsedDate ?? .distantPast) }
         } catch {
             print("Dashboard activities error: \(error)")
+            errorMessage = "Could not load your dates. Please try again."
         }
     }
 
     // MARK: - Accept
     func accept(proposal: PlannedActivity) async {
+        errorMessage = nil
         do {
             _ = try await PlannedActivityService.accept(id: proposal.id)
             await loadActivities()
         } catch {
             print("Accept error: \(error)")
+            errorMessage = "Could not accept the proposal. Please try again."
         }
     }
 
     // MARK: - Decline
     func decline(proposal: PlannedActivity) async {
+        errorMessage = nil
         do {
             _ = try await PlannedActivityService.decline(id: proposal.id)
             await loadActivities()
         } catch {
             print("Decline error: \(error)")
+            errorMessage = "Could not decline the proposal. Please try again."
         }
     }
 
     // MARK: - Reschedule
     func reschedule(proposal: PlannedActivity, newDate: Date, note: String?) async {
+        errorMessage = nil
         do {
             _ = try await PlannedActivityService.reschedule(id: proposal.id, newDate: newDate, note: note)
             await loadActivities()
         } catch {
             print("Reschedule error: \(error)")
+            errorMessage = "Could not send your proposal. Please try again."
+        }
+    }
+
+    // MARK: - Activity Detail
+    func fetchActivity(id: UUID) async -> Activity? {
+        do {
+            return try await ActivityService.fetchActivity(id: id)
+        } catch {
+            print("Fetch activity error: \(error)")
+            errorMessage = "Could not load the activity details."
+            return nil
+        }
+    }
+
+    // MARK: - Calendar
+    func addToCalendar(planned: PlannedActivity) async {
+        guard let date = planned.parsedDate else { return }
+        let store = EKEventStore()
+
+        do {
+            guard try await store.requestFullAccessToEvents() else {
+                calendarError = "Please allow calendar access in Settings."
+                showCalendarError = true
+                return
+            }
+
+            let event = EKEvent(eventStore: store)
+            event.title = planned.activityTitle
+            event.startDate = date
+            event.endDate = date.addingTimeInterval(3600)
+            event.calendar = store.defaultCalendarForNewEvents
+
+            try store.save(event, span: .thisEvent)
+        } catch {
+            print("Calendar error: \(error)")
+            calendarError = "Could not add to calendar. Please try again."
+            showCalendarError = true
         }
     }
 

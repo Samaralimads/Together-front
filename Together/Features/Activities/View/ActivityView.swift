@@ -13,7 +13,7 @@ struct ActivityView: View {
 
     var body: some View {
         Background {
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     searchBar
                     categoriesRow
@@ -23,6 +23,7 @@ struct ActivityView: View {
                 .padding(.top, 60)
                 .padding(.bottom, 40)
             }
+            .scrollIndicators(.hidden)
         }
         .task {
             await viewModel.load()
@@ -37,11 +38,11 @@ private extension ActivityView {
         HStack(spacing: 12) {
             HStack {
                 Image(systemName: "magnifyingglass")
-                    .foregroundColor(.black.opacity(0.6))
+                    .foregroundStyle(Color.black.opacity(0.6))
 
                 TextField("Search an activity", text: $viewModel.searchText)
                     .textFieldStyle(.plain)
-                    .foregroundColor(.black)
+                    .foregroundStyle(Color.black)
                     .onSubmit {
                         Task { await viewModel.applyFilters() }
                     }
@@ -52,7 +53,7 @@ private extension ActivityView {
                         Task { await viewModel.applyFilters() }
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.gray)
+                            .foregroundStyle(Color.gray)
                     }
                 }
             }
@@ -65,7 +66,7 @@ private extension ActivityView {
             } label: {
                 ZStack(alignment: .topTrailing) {
                     Image(systemName: "slider.horizontal.3")
-                        .foregroundColor(.black.opacity(0.6))
+                        .foregroundStyle(Color.black.opacity(0.6))
                         .padding()
                         .background(Color.white)
                         .clipShape(Capsule())
@@ -74,7 +75,7 @@ private extension ActivityView {
                         Text("\(viewModel.filterState.totalSelected)")
                             .font(.caption2)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundStyle(Color.white)
                             .frame(width: 20, height: 20)
                             .background(Color(.accent))
                             .clipShape(Circle())
@@ -92,7 +93,7 @@ private extension ActivityView {
     }
 
     var categoriesRow: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal) {
             HStack(spacing: 16) {
                 categoryChip(title: "All", isSelected: viewModel.selectedCategoryName == nil, imageName: "Sparkles") {
                     viewModel.selectedCategoryName = nil
@@ -111,6 +112,7 @@ private extension ActivityView {
                 }
             }
         }
+        .scrollIndicators(.hidden)
     }
 
     func categoryChip(title: String, isSelected: Bool, imageName: String, action: @escaping () -> Void) -> some View {
@@ -129,7 +131,7 @@ private extension ActivityView {
 
                 Text(title)
                     .font(.caption)
-                    .foregroundColor(.white)
+                    .foregroundStyle(Color.white)
                     .fontWeight(isSelected ? .bold : .medium)
             }
         }
@@ -144,25 +146,20 @@ private extension ActivityView {
             } else if let error = viewModel.errorMessage {
                 Text(error)
                     .font(.footnote)
-                    .foregroundColor(.red)
+                    .foregroundStyle(.red)
                     .frame(maxWidth: .infinity)
                     .padding(.top, 40)
             } else if viewModel.activities.isEmpty {
                 Text("No activities found.")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundStyle(Color.white.opacity(0.7))
                     .frame(maxWidth: .infinity)
                     .padding(.top, 40)
             } else {
                 LazyVStack(alignment: .leading, spacing: 16) {
                     ForEach(viewModel.activities) { activity in
-                        let category = viewModel.categories.first(where: { $0.id == activity.categoryId })
-                        let localCategory = Category(
-                            id: activity.categoryId,
-                            name: category?.name ?? ""
-                        )
-                        NavigationLink(destination: ActivityDetailView(activity: activity, category: localCategory)) {
-                            ActivityCard(activity: activity, category: localCategory)
+                        NavigationLink(destination: ActivityDetailView(activity: activity)) {
+                            ActivityCard(activity: activity)
                         }
                     }
                 }

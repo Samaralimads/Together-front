@@ -23,19 +23,19 @@ struct PasswordRequirements {
 struct InputField: View {
     let placeholder: String
     let type: InputFieldType
-    
+
     @Binding var text: String
     @Binding var date: Date?
-    
+
     var isValid: Bool = true
     var passwordRequirements: PasswordRequirements? = nil
-    
+
     @State private var showPassword = false
     @State private var showPasswordRequirements = false
     @FocusState private var isFocused: Bool
-    
+
     // MARK: - Initializers
-    
+
     // For text-based fields
     init(
         placeholder: String,
@@ -51,7 +51,7 @@ struct InputField: View {
         self.isValid = isValid
         self.passwordRequirements = passwordRequirements
     }
-    
+
     // For date field
     init(
         placeholder: String,
@@ -66,27 +66,27 @@ struct InputField: View {
         self.isValid = isValid
         self.passwordRequirements = nil
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            
+
             // MARK: - Field Types
             ZStack(alignment: .trailing) {
                 switch type {
-                    
+
                 case .date:
                     DatePicker(
                         placeholder,
                         selection: Binding(
-                            get: { date ?? Date() },
+                            get: { date ?? Date.now },
                             set: { date = $0 }
                         ),
-                        in: ...Date(),
+                        in: ...Date.now,
                         displayedComponents: .date
                     )
                     .datePickerStyle(.compact)
                     .fieldStyle(isFocused: true)
-                    
+
                 case .password:
                     Group {
                         if showPassword {
@@ -97,7 +97,7 @@ struct InputField: View {
                     }
                     .fieldStyle(isFocused: isFocused)
                     .focused($isFocused)
-                    
+
                 case .name, .email:
                     TextField(placeholder, text: $text)
                         .fieldStyle(isFocused: isFocused)
@@ -106,7 +106,7 @@ struct InputField: View {
                         .textInputAutocapitalization(type == .email ? .never : .words)
                         .focused($isFocused)
                 }
-                
+
                 // MARK: - Trailing Icons
                 if type == .password {
                     Button {
@@ -114,12 +114,12 @@ struct InputField: View {
                     } label: {
                         Image(systemName: showPassword ? "eye.fill" : "eye.slash.fill")
                             .contentTransition(.symbolEffect(.replace))
-                            .foregroundColor(.accentColor)
+                            .foregroundStyle(Color.accentColor)
                             .padding(.trailing, 12)
                     }
                 } else if (type == .name || type == .email), !text.isEmpty {
                     Image(systemName: "checkmark")
-                        .foregroundColor(isValid ? .accentColor : .clear)
+                        .foregroundStyle(isValid ? Color.accentColor : Color.clear)
                         .padding(.trailing, 12)
                         .symbolEffect(.bounce, value: isValid)
                 }
@@ -132,7 +132,7 @@ struct InputField: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Must contain at least:")
                         .font(.system(size: 14))
-                        .foregroundColor(.primary.opacity(0.7))
+                        .foregroundStyle(.primary.opacity(0.7))
 
                     PasswordRequirementRow(
                         text: "At least 1 uppercase",
@@ -154,7 +154,7 @@ struct InputField: View {
         }
         .onChange(of: text) {
             guard type == .password else { return }
-            
+
             if !text.isEmpty && !isValid {
                 showPasswordRequirements = true
             } else if text.isEmpty {
@@ -162,14 +162,13 @@ struct InputField: View {
             }
         }
         .onChange(of: isValid) {
-            guard type == .password else { return }
+            guard type == .password, isValid else { return }
 
-            if isValid {
-                // Add a small delay before hiding
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
-                        showPasswordRequirements = false
-                    }
+            // Small delay before hiding, so the last checkmark animation is visible
+            Task {
+                try? await Task.sleep(for: .seconds(0.5))
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
+                    showPasswordRequirements = false
                 }
             }
         }
@@ -185,13 +184,13 @@ struct PasswordRequirementRow: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "checkmark.circle.fill")
-                .foregroundColor(isMet ? .green : .gray.opacity(0.4))
+                .foregroundStyle(isMet ? Color.green : Color.gray.opacity(0.4))
                 .font(.system(size: 16))
                 .symbolEffect(.bounce, value: isMet)
 
             Text(text)
                 .font(.system(size: 14))
-                .foregroundColor(.primary.opacity(0.8))
+                .foregroundStyle(.primary.opacity(0.8))
         }
     }
 }
@@ -220,7 +219,7 @@ extension View {
 #Preview("All Fields - Sign Up Form") {
     @Previewable @State var viewModel = AuthViewModel()
     @Previewable @State var birthDate: Date?
-    
+
     VStack(spacing: 20) {
         InputField(
             placeholder: "Full Name",
@@ -228,7 +227,7 @@ extension View {
             text: $viewModel.name,
             isValid: viewModel.isNameValid
         )
-        
+
         InputField(
             placeholder: "Email",
             type: .email,
@@ -239,7 +238,7 @@ extension View {
             placeholder: "Birth Date",
             date: $birthDate
         )
-        
+
         InputField(
             placeholder: "Password",
             type: .password,

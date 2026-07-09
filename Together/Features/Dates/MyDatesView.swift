@@ -17,6 +17,7 @@ struct MyDatesView: View {
     @State private var upcoming: [PlannedActivity] = []
     @State private var history: [PlannedActivity] = []
     @State private var isLoading = false
+    @State private var errorMessage: String? = nil
 
     var body: some View {
         Background {
@@ -34,6 +35,14 @@ struct MyDatesView: View {
                     }
 
                     tabPicker
+
+                    if let errorMessage {
+                        Text(errorMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                            .frame(maxWidth: .infinity)
+                            .multilineTextAlignment(.center)
+                    }
 
                     if isLoading {
                         ProgressView()
@@ -57,18 +66,20 @@ struct MyDatesView: View {
             }
         }
         .task { await loadAll() }
-        .onChange(of: selectedTab) { _, tab in
-            Task { await loadAll() }
-        }
+        .refreshable { await loadAll() }
     }
 
     // MARK: - Load
     private func loadAll() async {
         isLoading = true
+        errorMessage = nil
         let now = Date.now
 
         do { favorites = try await ActivityService.fetchFavorites() }
-        catch { print("Favorites error: \(error)") }
+        catch {
+            print("Favorites error: \(error)")
+            errorMessage = "Could not load your favorites. Pull down to try again."
+        }
 
         do {
             let all = try await PlannedActivityService.getCoupleActivities()
@@ -78,7 +89,10 @@ struct MyDatesView: View {
             history = all
                 .filter { $0.isAccepted && ($0.parsedDate ?? .distantFuture) <= now }
                 .sorted { ($0.parsedDate ?? .distantPast) > ($1.parsedDate ?? .distantPast) }
-        } catch { print("Planned activities error: \(error)") }
+        } catch {
+            print("Planned activities error: \(error)")
+            errorMessage = "Could not load your dates. Pull down to try again."
+        }
 
         isLoading = false
     }
@@ -87,9 +101,8 @@ struct MyDatesView: View {
     private var favoritesList: some View {
         VStack(spacing: 16) {
             ForEach(favorites) { activity in
-                let category = Category(id: activity.categoryId, name: "")
-                NavigationLink(destination: ActivityDetailView(activity: activity, category: category)) {
-                    ActivityCard(activity: activity, category: category)
+                NavigationLink(destination: ActivityDetailView(activity: activity)) {
+                    ActivityCard(activity: activity)
                 }
             }
         }
@@ -193,33 +206,6 @@ struct MyDatesView: View {
         case .upcoming:  "Plan your next date and it'll show up here."
         case .history:   "Your completed activities will appear here."
         }
-    }
-}
-
-// MARK: - Upcoming Date Card
-struct UpcomingDateCard: View {
-    let planned: PlannedActivity
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(planned.activityTitle)
-                .font(.custom("IvyJournal-Bold", size: 20))
-                .foregroundStyle(Color.preto)
-
-            if let date = planned.parsedDate {
-                HStack(spacing: 8) {
-                    Label(date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()), systemImage: "calendar")
-                    Label(date.formatted(.dateTime.hour().minute()), systemImage: "clock")
-                }
-                .font(.system(size: 13))
-                .foregroundStyle(.secondary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(Color.branco)
-        .clipShape(.rect(cornerRadius: 20))
-        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 5)
     }
 }
 

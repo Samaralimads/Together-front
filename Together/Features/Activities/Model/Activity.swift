@@ -15,5 +15,10 @@ struct Activity: Codable, Identifiable {
     let duration: Int
     let isIndoor: Bool
     let categoryId: UUID
+    let categoryName: String
+
+    var category: Category {          //convenience for the views
+        Category(id: categoryId, name: categoryName)
+    }
 }
 
