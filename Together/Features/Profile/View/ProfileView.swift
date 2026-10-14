@@ -22,36 +22,40 @@ struct ProfileView: View {
     var body: some View {
         Background {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 24) {
                     HStack {
                         Spacer()
                         Button {
                             showSettings = true
                         } label: {
                             Image(systemName: "gearshape")
-                                .font(.system(size: 25))
+                                .font(.system(size: 24, weight: .semibold))
                                 .foregroundColor(.white)
+                                .frame(width: 40, height: 40)
+                                .background(Circle().fill(.thinMaterial))
                         }
                     }
                     .padding(.bottom, -18)
 
-                    ProfileAvatarsCard(
-                        partner1Initial: viewModel.partner1Initial,
-                        partner2Initial: viewModel.partner2Initial,
-                        profileImage: selectedImage,
-                        onCameraClick: {
-                            showImagePicker = true
-                        },
-                        onAddPartnerClick: {
-                            if !viewModel.isPaired {
-                                showNoPairAlert = true
+                    VStack(spacing: 12) {
+                        ProfileAvatarsCard(
+                            partner1Initial: viewModel.partner1Initial,
+                            partner2Initial: viewModel.partner2Initial,
+                            profileImage: selectedImage,
+                            onCameraClick: {
+                                showImagePicker = true
+                            },
+                            onAddPartnerClick: {
+                                if !viewModel.isPaired {
+                                    showNoPairAlert = true
+                                }
                             }
-                        }
-                    )
+                        )
 
-                    Text(viewModel.displayName)
-                        .font(.custom("IvyJournal-Bold", size: 35))
-                        .foregroundColor(.white)
+                        Text(viewModel.displayName)
+                            .font(.custom("IvyJournal-Bold", size: 35))
+                            .foregroundColor(.white)
+                    }
 
                     TogetherForCard(anniversary: anniversary) {
                         showEditAnniversary = true
@@ -75,6 +79,7 @@ struct ProfileView: View {
         .task {
             await viewModel.load()
             anniversary = viewModel.anniversaryDate
+            selectedImage = ProfileImageStore.load()
         }
         .navigationDestination(isPresented: $showSettings) {
             SettingsView()

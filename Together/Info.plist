@@ -9,5 +9,9 @@
 		<string>IvyJournal-Thin.otf</string>
 		<string>IvyJournal-SemiBoldItalic.otf</string>
 	</array>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Together uses your calendar to add the dates you plan together so you don't miss them.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Together uses your photo library so you can set a profile picture.</string>
 </dict>
 </plist>

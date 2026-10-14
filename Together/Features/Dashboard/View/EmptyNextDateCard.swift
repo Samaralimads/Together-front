@@ -9,22 +9,44 @@ import SwiftUI
 
 struct EmptyNextDateCard: View {
     var body: some View {
-        VStack(spacing: 10) {
-            Text("No date planned yet")
-                .font(.system(size: 15))
-                .foregroundStyle(.secondary)
-            Text("🤔")
-                .font(.system(size: 30))
-            Text("Let's find something fun to do!")
-                .font(.system(size: 14, weight: .light))
-                .foregroundStyle(.secondary)
-            NavigationLink(destination: ActivityView()) {
-                Text("Find an activity")
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 6) {
+                Image(systemName: "calendar")
+                    .font(.system(.caption2, weight: .bold))
+                Text("YOUR NEXT DATE")
+                    .font(.system(.caption2, weight: .bold))
+                    .kerning(0.5)
             }
-            .modifier(AccentButtonModifier())
+            .foregroundStyle(Color.branco)
+            .padding(.horizontal)
+            .padding(.vertical, 6)
+            .background(Color.laranja.opacity(0.9))
+            .clipShape(Capsule())
+
+                Text("No date planned yet")
+                    .font(.custom("IvyJournal-Bold", size: 22, relativeTo: .title2))
+                    .foregroundStyle(Color.preto)
+
+            Text("Let's find something fun to do!")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            NavigationLink(destination: ActivityView()) {
+                Text("Find an activity →")
+                    .font(.system(.subheadline, weight: .semibold))
+                    .foregroundStyle(Color.branco)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .background(Color.laranja.opacity(0.9))
+                    .clipShape(.rect(cornerRadius: 20))
+            }
         }
-        .frame(maxWidth: .infinity)
         .padding(20)
-        .background(RoundedRectangle(cornerRadius: 24).fill(Color.branco))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 24).fill(.branco))
     }
+}
+
+#Preview {
+    EmptyNextDateCard()
 }

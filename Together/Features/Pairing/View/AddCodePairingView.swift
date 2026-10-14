@@ -79,6 +79,9 @@ struct AddCodePairingView: View {
             do {
                 _ = try await CoupleService.joinCouple(invitationCode: code)
                 navigateToPairingSuccess = true
+            } catch let error as APIError {
+                print("Join couple error: \(error)")
+                errorMessage = error.errorDescription ?? "Invalid or expired code. Please check and try again."
             } catch {
                 print("Join couple error: \(error)")
                 errorMessage = "Invalid or expired code. Please check and try again."

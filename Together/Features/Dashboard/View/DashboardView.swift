@@ -12,6 +12,7 @@ struct DashboardView: View {
     @State private var showInvitePartner = false
     @State private var showInviteBannerDismissed = false
     @State private var proposalToReschedule: PlannedActivity? = nil
+    @State private var proposalToDecline: PlannedActivity? = nil
     @State private var navigateToDetail = false
     @State private var detailActivity: Activity? = nil
 
@@ -24,7 +25,14 @@ struct DashboardView: View {
                     headerSection
 
                     if !viewModel.isPaired && !showInviteBannerDismissed {
-                        inviteBanner
+                        InviteBannerCard(
+                            onInvite: { showInvitePartner = true },
+                            onDismiss: {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    showInviteBannerDismissed = true
+                                }
+                            }
+                        )
                     }
 
                     if let errorMessage = viewModel.errorMessage {
@@ -41,7 +49,7 @@ struct DashboardView: View {
                             onDetails: { openDetails(for: nextDate) },
                             onAddToCalendar: { addToCalendar(nextDate) }
                         )
-                    } else {
+                    } else if viewModel.pendingProposals.isEmpty && viewModel.sentProposals.isEmpty {
                         EmptyNextDateCard()
                     }
 
@@ -52,17 +60,27 @@ struct DashboardView: View {
                             partnerName: viewModel.partnerName,
                             note: proposal.note,
                             onAccept: { accept(proposal) },
-                            onRefuse: { decline(proposal) },
+                            onRefuse: { proposalToDecline = proposal },
                             onReschedule: { proposalToReschedule = proposal }
+                        )
+                    }
+
+                    ForEach(viewModel.sentProposals) { proposal in
+                        SentProposalCard(
+                            title: proposal.activityTitle,
+                            date: proposal.parsedDate ?? Date.now,
+                            partnerName: viewModel.partnerName
                         )
                     }
 
                     Spacer(minLength: 40)
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 60)
+                .padding(.top, 20)
                 .padding(.bottom, 40)
+                .dynamicTypeSize(.large ... .xxLarge)
             }
+            .refreshable { await viewModel.load() }
         }
         .task { await viewModel.load() }
         .navigationDestination(isPresented: $navigateToDetail) {
@@ -78,8 +96,28 @@ struct DashboardView: View {
                 Task { await viewModel.reschedule(proposal: proposal, newDate: newDate, note: note) }
             }
         }
+        .alert(
+            "Decline Proposal",
+            isPresented: Binding(
+                get: { proposalToDecline != nil },
+                set: { if !$0 { proposalToDecline = nil } }
+            )
+        ) {
+            Button("Cancel", role: .cancel) { proposalToDecline = nil }
+            Button("Decline", role: .destructive) {
+                if let proposal = proposalToDecline {
+                    decline(proposal)
+                }
+                proposalToDecline = nil
+            }
+        } message: {
+            Text("Are you sure you want to decline this proposal? Your partner will be notified.")
+        }
         .alert("Calendar Error", isPresented: $viewModel.showCalendarError) { } message: {
             Text(viewModel.calendarError ?? "")
+        }
+        .alert("Calendar", isPresented: $viewModel.showCalendarMessage) { } message: {
+            Text(viewModel.calendarMessage ?? "")
         }
     }
 
@@ -105,60 +143,107 @@ struct DashboardView: View {
     }
 }
 
-// MARK: - Subviews
+// MARK: - Components
 private extension DashboardView {
 
     var headerSection: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(viewModel.greeting.uppercased())
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(Color.preto.opacity(0.6))
-                .kerning(1)
-            Text(viewModel.firstName)
-                .font(.custom("IvyJournal-Bold", size: 30))
-                .foregroundStyle(Color.preto)
-        }
-    }
-
-    var inviteBanner: some View {
-        ZStack(alignment: .topTrailing) {
-            VStack(spacing: 12) {
-                VStack(spacing: 10) {
-                    HStack(spacing: 1) {
-                        Text("It's always better ")
-                            .font(.system(size: 18))
-                            .foregroundStyle(Color.preto)
-                        Text("Together")
-                            .font(.custom("IvyJournal-Bold", size: 18))
-                            .foregroundStyle(Color.preto)
-                    }
-                    Text("Send an invitation code to your partner and once connected you can book activities together.")
-                        .font(.subheadline)
-                        .foregroundStyle(Color.preto.opacity(0.7))
-                        .multilineTextAlignment(.center)
-                }
-                Button("Invite your partner") { showInvitePartner = true }
-                    .modifier(AccentButtonModifier())
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(viewModel.greeting.uppercased())
+                    .font(.system(.caption, weight: .semibold))
+                    .foregroundStyle(Color.preto.opacity(0.6))
+                    .kerning(1)
+                Text(viewModel.firstName)
+                    .font(.custom("IvyJournal-Bold", size: 30, relativeTo: .title))
+                    .foregroundStyle(Color.preto)
             }
-            .padding(20)
-            .background(RoundedRectangle(cornerRadius: 24).fill(.thinMaterial))
 
-            Button {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                    showInviteBannerDismissed = true
-                }
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color.preto.opacity(0.5))
-                    .padding(10)
+            Spacer()
+
+            // TODO: wire up to a real notifications feed (partner responses, upcoming activities, special dates) — not NotificationView, that's just preference toggles
+            Button {} label: {
+                Image(systemName: "bell")
+                    .font(.system(.callout, weight: .semibold))
+                    .foregroundStyle(Color.preto)
+                    .frame(width: 40, height: 40)
+                    .background(Circle().fill(.thinMaterial))
             }
         }
     }
 }
 
-#Preview {
-    NavigationStack {
-        DashboardView()
+//#Preview {
+//    NavigationStack {
+//        DashboardView()
+//    }
+//}
+
+#Preview("All Cards") {
+    let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        formatter.timeZone = TimeZone(identifier: "UTC")
+        return formatter
+    }()
+
+    let nextDate = PlannedActivity(
+        id: UUID(),
+        activityId: UUID(),
+        activityTitle: "Brunch at a local café",
+        coupleId: UUID(),
+        plannedByUserId: UUID(),
+        proposedDate: dateFormatter.string(from: Calendar.current.date(byAdding: .day, value: 3, to: .now)!),
+        responseDate: nil,
+        bookingStatus: "accepted",
+        reminderEnabled: true,
+        reminderDaysBefore: 1,
+        note: nil,
+        createdAt: nil
+    )
+
+    return NavigationStack {
+        Background {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("GOOD EVENING")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(Color.preto.opacity(0.6))
+                            .kerning(1)
+                        Text("Sarah")
+                            .font(.custom("IvyJournal-Bold", size: 30))
+                            .foregroundStyle(Color.preto)
+                    }
+
+                    InviteBannerCard(onInvite: {}, onDismiss: {})
+
+                    NextDateCard(planned: nextDate, onDetails: {}, onAddToCalendar: {})
+
+                    EmptyNextDateCard()
+
+                    PendingProposalCard(
+                        title: "Sunset boat tour",
+                        date: Calendar.current.date(byAdding: .day, value: 5, to: .now)!,
+                        partnerName: "Henri",
+                        note: "How about this instead?",
+                        onAccept: {},
+                        onRefuse: {},
+                        onReschedule: {}
+                    )
+
+                    SentProposalCard(
+                        title: "Pottery Workshop",
+                        date: Calendar.current.date(byAdding: .day, value: 3, to: .now)!,
+                        partnerName: "Henri"
+                    )
+
+                    Spacer(minLength: 40)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 40)
+                .dynamicTypeSize(.large ... .xxLarge)
+            }
+        }
     }
 }

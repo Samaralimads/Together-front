@@ -44,9 +44,9 @@ class ActivityViewModel {
             activities = try await ActivityService.fetchActivities(
                 category: selectedCategoryName,
                 search: searchText.isEmpty ? nil : searchText,
-                budget: filterState.priceRange.first,
-                duration: filterState.duration.first,
-                location: filterState.location.first
+                budget: filterState.priceRange,
+                duration: filterState.duration,
+                location: filterState.location
             )
         } catch {
             errorMessage = error.localizedDescription

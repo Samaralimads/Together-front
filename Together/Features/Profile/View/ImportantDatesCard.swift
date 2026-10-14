@@ -27,7 +27,7 @@ struct ImportantDatesCard: View {
                 } label: {
                     Image(systemName: "calendar.badge.plus")
                         .font(.title2)
-                        .foregroundColor(.orange)
+                        .foregroundColor(.laranja)
                 }
             }
 
@@ -59,7 +59,7 @@ struct ImportantDatesCard: View {
             .scrollDisabled(importantDates.count + 1 <= 5)
         }
         .padding(20)
-        .background(RoundedRectangle(cornerRadius: 25).fill(.branco))
+        .background(RoundedRectangle(cornerRadius: 24).fill(.branco))
         .sheet(item: $dateToEdit) { date in
             EditImportantDateSheet(date: date) { updated in
                 onEdit(updated)

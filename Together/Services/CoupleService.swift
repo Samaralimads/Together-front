@@ -16,7 +16,6 @@ struct CoupleService {
 
     struct JoinCoupleRequest: Encodable {
         let invitationCode: String
-        let relationshipStartDate: String
     }
 
     // MARK: - Response Models
@@ -35,7 +34,7 @@ struct CoupleService {
 
     // MARK: - Join couple (User 2)
     static func joinCouple(invitationCode: String) async throws -> Couple {
-        let body = JoinCoupleRequest(invitationCode: invitationCode, relationshipStartDate: "2000-01-01")
+        let body = JoinCoupleRequest(invitationCode: invitationCode)
         return try await APIClient.shared.request("/couples/join", method: "POST", body: body)
     }
 

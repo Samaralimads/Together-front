@@ -46,6 +46,14 @@ struct AboutYouView: View {
                 .tint(.primary)
                 .padding(.vertical, 10)
 
+                if let error = viewModel.saveError {
+                    Section {
+                        Text(error)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
+                }
+
                 if let error = viewModel.deleteError {
                     Section {
                         Text(error)

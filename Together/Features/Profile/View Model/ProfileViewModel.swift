@@ -17,6 +17,7 @@ class ProfileViewModel {
     var errorMessage: String? = nil
     var isPaired: Bool { couple?.partner != nil }
     var isSaving: Bool = false
+    var saveError: String? = nil
     var isDeleting: Bool = false
     var deleteError: String? = nil
 
@@ -50,11 +51,19 @@ class ProfileViewModel {
     // MARK: - Save profile
     func saveProfile(firstName: String, email: String) async {
         isSaving = true
-        _ = try? await ProfileService.updateMe(
-            firstName: firstName.isEmpty ? nil : firstName,
-            email: email.isEmpty ? nil : email
-        )
-        isSaving = false
+        saveError = nil
+        defer { isSaving = false }
+
+        do {
+            user = try await ProfileService.updateMe(
+                firstName: firstName.isEmpty ? nil : firstName,
+                email: email.isEmpty ? nil : email
+            )
+        } catch let error as APIError {
+            saveError = error.errorDescription ?? "Could not save your changes. Please try again."
+        } catch {
+            saveError = "Could not save your changes. Please try again."
+        }
     }
 
     // MARK: - Delete account

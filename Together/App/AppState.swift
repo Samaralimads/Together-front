@@ -12,6 +12,20 @@ class AppState {
     var isAuthenticated: Bool = JWTService.getToken() != nil
     var isOnboarding: Bool = UserDefaults.standard.bool(forKey: "isOnboarding")
 
+    init() {
+        NotificationCenter.default.addObserver(
+            forName: .sessionExpired,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.logout()
+        }
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     func login() {
         isAuthenticated = true
         isOnboarding = false

@@ -41,12 +41,12 @@ struct TogetherForCard: View {
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 32)
-                    .fill(Color.accent)
+                    .fill(Color.accent.opacity(0.9))
             )
         }
         .padding(20)
         .background(
-            RoundedRectangle(cornerRadius: 25)
+            RoundedRectangle(cornerRadius: 24)
                 .fill(.branco)
         )
     }

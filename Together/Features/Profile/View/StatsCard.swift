@@ -7,15 +7,16 @@
 import SwiftUI
 
 struct StatsCard: View {
-    // TODO: - Add an alternate view if couple not paired
+    @State private var viewModel = StatsViewModel()
+
     var body: some View {
         VStack(spacing: 20) {
             HStack {
                 Text("Stats")
                     .font(.custom("IvyJournal-Bold", size: 24))
-                
+
                 Spacer()
-                
+
                 Menu {
                     Button("This year") { }
                     Button("This month") { }
@@ -25,62 +26,71 @@ struct StatsCard: View {
                         Text("This year")
                             .font(.subheadline)
                             .foregroundColor(.primary)
-                        
+
                         Image(systemName: "chevron.down")
                             .font(.caption)
                             .foregroundColor(.accent)
                     }
                 }
             }
-            
-            DatesCompletedRow(
-                totalDates: 50
-            )
-            
-            Divider()
-            
-            // Planned by section
-            VStack(spacing: 12) {
-                Text("Planned by")
-                    .font(.body)
-                    .fontWeight(.medium)
-                
-                VStack(spacing: 15) {
-                    PlannedByRow(
-                        name: "Sarah",
-                        color: .lilas,
-                        completed: 40,
-                        total: 50
-                    )
-                    
-                    PlannedByRow(
-                        name: "John",
-                        color: .verde,
-                        completed: 10,
-                        total: 50
+
+            if viewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 30)
+            } else {
+                DatesCompletedRow(
+                    totalDates: viewModel.totalCompleted
+                )
+
+                Divider()
+
+                // Planned by section
+                VStack(spacing: 12) {
+                    Text("Planned by")
+                        .font(.body)
+                        .fontWeight(.medium)
+
+                    VStack(spacing: 15) {
+                        PlannedByRow(
+                            name: viewModel.myName,
+                            color: .lilas,
+                            completed: viewModel.plannedByMe,
+                            total: max(viewModel.totalCompleted, 1)
+                        )
+
+                        if viewModel.isPaired {
+                            PlannedByRow(
+                                name: viewModel.partnerName,
+                                color: .verde,
+                                completed: viewModel.plannedByPartner,
+                                total: max(viewModel.totalCompleted, 1)
+                            )
+                        }
+                    }
+                }
+
+                Divider()
+
+                // Where section
+                VStack(spacing: 12) {
+                    Text("Where")
+                        .font(.body)
+                        .fontWeight(.medium)
+
+                    WhereRow(
+                        indoors: viewModel.indoorCount,
+                        outdoors: viewModel.outdoorCount
                     )
                 }
-            }
-            
-            Divider()
-            
-            // Where section
-            VStack(spacing: 12) {
-                Text("Where")
-                    .font(.body)
-                    .fontWeight(.medium)
-                
-                WhereRow(
-                    indoors: 22,
-                    outdoors: 28
-                )
             }
         }
         .padding(20)
         .background(
-            RoundedRectangle(cornerRadius: 25)
-                .fill(.white)
+            RoundedRectangle(cornerRadius: 24)
+                .fill(.branco)
         )
+        .task { await viewModel.load() }
     }
 }
 

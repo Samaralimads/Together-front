@@ -14,16 +14,41 @@ class DashboardViewModel {
     var couple: Couple? = nil
     var nextDate: PlannedActivity? = nil
     var pendingProposals: [PlannedActivity] = []
+    var sentProposals: [PlannedActivity] = []
     var isLoading = false
     var errorMessage: String? = nil
     var calendarError: String? = nil
     var showCalendarError = false
+    var calendarMessage: String? = nil
+    var showCalendarMessage = false
 
     // MARK: - Load
     func load() async {
         isLoading = true
-        do { user = try await ProfileService.fetchMe() } catch { print("Dashboard user error: \(error)") }
-        do { couple = try await ProfileService.fetchCouple() } catch { couple = nil }
+        errorMessage = nil
+
+        do {
+            user = try await ProfileService.fetchMe()
+        } catch {
+            print("Dashboard user error: \(error)")
+            errorMessage = "Could not load your profile. Please try again."
+        }
+
+        do {
+            couple = try await ProfileService.fetchCouple()
+        } catch let error as APIError {
+            couple = nil
+            if case .serverError(404, _) = error {
+                // Not paired yet — expected state, not a failure.
+            } else {
+                print("Dashboard couple error: \(error)")
+                errorMessage = "Could not load your relationship info. Please try again."
+            }
+        } catch {
+            couple = nil
+            print("Dashboard couple error: \(error)")
+        }
+
         await loadActivities()
         isLoading = false
     }
@@ -40,6 +65,10 @@ class DashboardViewModel {
 
             pendingProposals = all
                 .filter { $0.isPending && $0.plannedByUserId != user?.id }
+                .sorted { ($0.parsedDate ?? .distantPast) < ($1.parsedDate ?? .distantPast) }
+
+            sentProposals = all
+                .filter { $0.isPending && $0.plannedByUserId == user?.id }
                 .sorted { ($0.parsedDate ?? .distantPast) < ($1.parsedDate ?? .distantPast) }
         } catch {
             print("Dashboard activities error: \(error)")
@@ -106,6 +135,13 @@ class DashboardViewModel {
                 return
             }
 
+            if let existingId = CalendarEventStore.eventIdentifier(for: planned.id),
+               store.event(withIdentifier: existingId) != nil {
+                calendarMessage = "This date is already on your calendar."
+                showCalendarMessage = true
+                return
+            }
+
             let event = EKEvent(eventStore: store)
             event.title = planned.activityTitle
             event.startDate = date
@@ -113,6 +149,12 @@ class DashboardViewModel {
             event.calendar = store.defaultCalendarForNewEvents
 
             try store.save(event, span: .thisEvent)
+            if let identifier = event.eventIdentifier {
+                CalendarEventStore.setEventIdentifier(identifier, for: planned.id)
+            }
+
+            calendarMessage = "Added to your calendar!"
+            showCalendarMessage = true
         } catch {
             print("Calendar error: \(error)")
             calendarError = "Could not add to calendar. Please try again."

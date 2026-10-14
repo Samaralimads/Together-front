@@ -86,8 +86,8 @@ struct RescheduleSheet: View {
                     Button("Send proposal", action: sendProposal)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.preto)
-                        .foregroundStyle(Color.white)
+                        .background(Color.lilas)
+                        .foregroundStyle(Color.preto)
                         .clipShape(.rect(cornerRadius: 30))
                 }
             }

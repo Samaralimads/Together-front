@@ -10,12 +10,12 @@ import SwiftUI
 // MARK: - Filter Model
 
 struct FilterState {
-    var priceRange: Set<String> = []
-    var duration: Set<String> = []
-    var location: Set<String> = []
-    
+    var priceRange: String? = nil
+    var duration: String? = nil
+    var location: String? = nil
+
     var totalSelected: Int {
-        priceRange.count + duration.count + location.count
+        [priceRange, duration, location].compactMap { $0 }.count
     }
 }
 
@@ -24,62 +24,59 @@ struct FilterState {
 struct FiltersView: View {
     @Binding var filterState: FilterState
     @Environment(\.dismiss) private var dismiss
-    
+
     private let priceOptions = ["LOW", "MEDIUM", "HIGH"]
     private let durationOptions = ["< 2 HOURS", "< 5 HOURS", "1 DAY", "WEEKEND"]
     private let locationOptions = ["INDOORS", "OUTDOORS"]
-    
+
     var body: some View {
         NavigationStack{
         ZStack{
             Color(.white)
                 .edgesIgnoringSafeArea(.all)
-            
+
             VStack(spacing: 0) {
-                
+
                 Divider()
-                
+
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        
+
                         FilterSection(
                             title: "Price Range",
-                            badge: filterState.priceRange.count,
                             options: priceOptions,
                             selected: filterState.priceRange,
                             color: Color(.verde)
                         ) { option in
-                            toggle(&filterState.priceRange, option)
+                            select(&filterState.priceRange, option)
                         }
-                        
+
                         Divider().padding(.horizontal, 20)
-                        
+
                         FilterSection(
                             title: "Approximate Duration",
-                            badge: filterState.duration.count,
                             options: durationOptions,
                             selected: filterState.duration,
                             color: Color(.rosa)
                         ) { option in
-                            toggle(&filterState.duration, option)
+                            select(&filterState.duration, option)
                         }
-                        
+
                         Divider().padding(.horizontal, 20)
-                        
+
                         FilterSection(
                             title: "Location",
-                            badge: filterState.location.count,
                             options: locationOptions,
                             selected: filterState.location,
                             color: Color(.lilas)
                         ) { option in
-                            toggle(&filterState.location, option)
+                            select(&filterState.location, option)
                         }
                     }
                 }
-                
+
                 Spacer()
-                
+
                 // Apply Button
                 Button("Apply filters"){
                     dismiss()
@@ -98,23 +95,24 @@ struct FiltersView: View {
             }
             .navigationTitle("Filters")
             .navigationBarTitleDisplayMode(.inline)
-            
+
         }
     }
 }
-    
-    private func toggle(_ set: inout Set<String>, _ value: String) {
-        if set.contains(value) { set.remove(value) } else { set.insert(value) }
+
+    // Each section only supports a single active value server-side, so
+    // tapping a chip either selects it or, if already selected, clears it.
+    private func select(_ current: inout String?, _ value: String) {
+        current = (current == value) ? nil : value
     }
-    
+
     struct FilterSection: View{
         let title: String
-        let badge: Int
         let options: [String]
-        let selected: Set<String>
+        let selected: String?
         let color: Color
         let onTap:(String) -> Void
-        
+
         private let columns = [
             GridItem(.flexible(),alignment: .leading),
             GridItem(.flexible(),alignment: .leading),
@@ -122,25 +120,13 @@ struct FiltersView: View {
         ]
         var body: some View {
             VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Text(title)
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                    Spacer()
-                    if badge > 0 {
-                        Text("\(badge)")
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .frame(width: 22, height: 22)
-                            .background(color)
-                            .clipShape(Circle())
-                    }
-                }
-                
+                Text(title)
+                    .font(.title3)
+                    .fontWeight(.semibold)
+
                 LazyVGrid(columns: columns, spacing: 10) {
                     ForEach(options, id: \.self) { option in
-                        let isSelected = selected.contains(option)
+                        let isSelected = selected == option
                         Button {
                             onTap(option)
                         } label: {
@@ -159,7 +145,7 @@ struct FiltersView: View {
             .padding(20)
         }
     }
-    
+
 }
 
 #Preview {

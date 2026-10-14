@@ -31,6 +31,10 @@ struct APIErrorResponse: Decodable {
     let reason: String
 }
 
+extension Notification.Name {
+    static let sessionExpired = Notification.Name("together.sessionExpired")
+}
+
 final class APIClient {
     static let shared = APIClient()
     private let baseURL = "http://127.0.0.1:8080"
@@ -46,7 +50,7 @@ final class APIClient {
         requiresAuth: Bool = true
     ) async throws -> T {
         let request = try makeRequest(path, method: method, queryItems: queryItems, body: body, requiresAuth: requiresAuth)
-        let data = try await perform(request)
+        let data = try await perform(request, requiresAuth: requiresAuth)
 
         do {
             let decoder = JSONDecoder()
@@ -66,7 +70,7 @@ final class APIClient {
         requiresAuth: Bool = true
     ) async throws {
         let request = try makeRequest(path, method: method, queryItems: queryItems, body: body, requiresAuth: requiresAuth)
-        _ = try await perform(request)
+        _ = try await perform(request, requiresAuth: requiresAuth)
     }
 
     // MARK: - Helpers
@@ -105,14 +109,19 @@ final class APIClient {
         return request
     }
 
-    private func perform(_ request: URLRequest) async throws -> Data {
+    private func perform(_ request: URLRequest, requiresAuth: Bool) async throws -> Data {
         let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.unknown(URLError(.badServerResponse))
         }
 
-        if httpResponse.statusCode == 401 {
+        // Only treat a 401 as a session-expiry (and force a global logout) when
+        // the request actually carried a token. A 401 on an unauthenticated
+        // request (e.g. login with the wrong password) is a normal credentials
+        // error and falls through to the generic serverError case below.
+        if requiresAuth && httpResponse.statusCode == 401 {
+            NotificationCenter.default.post(name: .sessionExpired, object: nil)
             throw APIError.unauthorized
         }
 
