@@ -37,8 +37,8 @@ struct DashboardView: View {
 
                     if let errorMessage = viewModel.errorMessage {
                         Text(errorMessage)
-                            .font(.footnote)
-                            .foregroundStyle(.red)
+                            .font(.luckySubheadline)
+                            .foregroundStyle(Color.destructiveRed)
                             .frame(maxWidth: .infinity)
                             .multilineTextAlignment(.center)
                     }
@@ -151,11 +151,11 @@ private extension DashboardView {
             VStack(alignment: .leading, spacing: 2) {
                 Text(viewModel.greeting.uppercased())
                     .font(.system(.caption, weight: .semibold))
-                    .foregroundStyle(Color.preto.opacity(0.6))
+                    .foregroundStyle(Color.charcoal.opacity(0.6))
                     .kerning(1)
                 Text(viewModel.firstName)
-                    .font(.custom("IvyJournal-Bold", size: 30, relativeTo: .title))
-                    .foregroundStyle(Color.preto)
+                    .font(.custom("Gaegu-Bold", size: 30, relativeTo: .title))
+                    .foregroundStyle(Color.charcoal)
             }
 
             Spacer()
@@ -164,7 +164,7 @@ private extension DashboardView {
             Button {} label: {
                 Image(systemName: "bell")
                     .font(.system(.callout, weight: .semibold))
-                    .foregroundStyle(Color.preto)
+                    .foregroundStyle(Color.charcoal)
                     .frame(width: 40, height: 40)
                     .background(Circle().fill(.thinMaterial))
             }
@@ -207,12 +207,12 @@ private extension DashboardView {
                 VStack(alignment: .leading, spacing: 20) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("GOOD EVENING")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(Color.preto.opacity(0.6))
+                            .font(.luckyCaption)
+                            .foregroundStyle(Color.charcoal.opacity(0.6))
                             .kerning(1)
                         Text("Sarah")
-                            .font(.custom("IvyJournal-Bold", size: 30))
-                            .foregroundStyle(Color.preto)
+                            .font(.custom("Gaegu-Bold", size: 30))
+                            .foregroundStyle(Color.charcoal)
                     }
 
                     InviteBannerCard(onInvite: {}, onDismiss: {})

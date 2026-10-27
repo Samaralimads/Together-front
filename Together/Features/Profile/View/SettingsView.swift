@@ -15,37 +15,47 @@ struct SettingsView: View {
 
     var body: some View {
         Background {
-            List {
-                Section {
-                    NavigationLink("About you") {
-                        AboutYouView()
+            ScrollView {
+                VStack(spacing: 20) {
+                    LuckyGroup {
+                        NavigationLink {
+                            AboutYouView()
+                        } label: {
+                            SettingsRow(title: "About you", subtitle: "Your details and account")
+                        }
+
+                        NavigationLink {
+                            AboutRelationshipView()
+                        } label: {
+                            SettingsRow(title: "Your relationship", subtitle: "Partner and anniversary")
+                        }
+
+                        NavigationLink {
+                            NotificationView()
+                        } label: {
+                            SettingsRow(title: "Notification Settings", subtitle: "Choose what you hear about")
+                        }
                     }
 
-                    NavigationLink("Your relationship") {
-                        AboutRelationshipView()
+                    LuckyGroup {
+                        Button {
+                            // TODO: send email to support
+                        } label: {
+                            SettingsRow(title: "Help & Support", subtitle: "FAQs and contact")
+                        }
+
+                        Button {
+                            requestReview()
+                        } label: {
+                            SettingsRow(title: "Leave us a review", subtitle: "Tell us what you think")
+                        }
                     }
 
-                    NavigationLink("Notification Settings") {
-                        NotificationView()
-                    }
-
-                    Button("Help & Support") {
-                        // TODO: send email to support
-                    }
-
-                    Button("Leave us a review") {
-                        requestReview()
-                    }
-                }
-                .tint(.primary)
-                .padding(.vertical, 10)
-
-                Section {
-                    Button(role: .destructive) {
+                    Button("Log out") {
                         showLogoutAlert = true
-                    } label: {
-                        Text("Log out")
                     }
+                    .buttonStyle(.luckyDestructive)
+                    .padding(.trailing, Outline.shadowOffset)
                     .alert("Log Out", isPresented: $showLogoutAlert) {
                         Button("Cancel", role: .cancel) { }
                         Button("Log out", role: .destructive) {
@@ -55,17 +65,13 @@ struct SettingsView: View {
                         Text("Are you sure you want to log out?")
                     }
                 }
-                .padding(.vertical, 8)
+                                .padding(.horizontal, 20)
+                .padding(.top, 60)
+                .padding(.bottom, 24)
             }
-            .scrollContentBackground(.hidden)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("Settings")
-                        .font(.title.weight(.semibold))
-                }
-            }
+            .scrollIndicators(.hidden)
         }
+        .luckyBackButton(title: "Settings")
     }
 }
 

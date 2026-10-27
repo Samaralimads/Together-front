@@ -32,17 +32,17 @@ struct RescheduleSheet: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
                 Text("PROPOSE NEW TIME")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.luckyCaption)
                     .kerning(1)
                     .foregroundStyle(.secondary)
 
                 Text(proposal.activityTitle)
-                    .font(.custom("IvyJournal-Italic", size: 28))
-                    .foregroundStyle(Color.preto)
+                    .font(.custom("Gaegu-Bold", size: 28))
+                    .foregroundStyle(Color.charcoal)
 
                 if let originalDate = proposal.parsedDate {
                     Text("\(partnerName) suggested \(originalDate.formatted(.dateTime.month(.abbreviated).day())) · \(originalDate.formatted(.dateTime.hour().minute()))")
-                        .font(.system(size: 14))
+                        .font(.luckySubheadline)
                         .foregroundStyle(.secondary)
                 }
 
@@ -86,8 +86,8 @@ struct RescheduleSheet: View {
                     Button("Send proposal", action: sendProposal)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.lilas)
-                        .foregroundStyle(Color.preto)
+                        .background(Color.luckyBlue)
+                        .foregroundStyle(Color.charcoal)
                         .clipShape(.rect(cornerRadius: 30))
                 }
             }

@@ -26,20 +26,20 @@ struct MyDatesView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Your Dates")
-                            .font(.custom("IvyJournal-Bold", size: 30))
-                            .foregroundStyle(Color.preto)
+                            .font(.custom("Gaegu-Bold", size: 30))
+                            .foregroundStyle(Color.charcoal)
 
                         Text("Keep track of your current, past or favorite activities.")
-                            .font(.system(size: 15, weight: .regular))
-                            .foregroundStyle(Color.branco)
+                            .font(.luckySubheadline)
+                            .foregroundStyle(Color.cardFill)
                     }
 
                     tabPicker
 
                     if let errorMessage {
                         Text(errorMessage)
-                            .font(.footnote)
-                            .foregroundStyle(.red)
+                            .font(.luckySubheadline)
+                            .foregroundStyle(Color.destructiveRed)
                             .frame(maxWidth: .infinity)
                             .multilineTextAlignment(.center)
                     }
@@ -146,16 +146,16 @@ struct MyDatesView: View {
                 Image(systemName: icon)
                     .font(.system(size: 11, weight: .semibold))
                 Text(title)
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.luckyCaptionStrong)
             }
-            .foregroundStyle(isSelected ? Color.preto : Color.preto.opacity(0.45))
+            .foregroundStyle(isSelected ? Color.charcoal : Color.charcoal.opacity(0.45))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 10)
             .background(
                 Group {
                     if isSelected {
                         RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.branco)
+                            .fill(Color.cardFill)
                             .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)
                     }
                 }
@@ -168,16 +168,16 @@ struct MyDatesView: View {
         VStack(spacing: 12) {
             Text(emptyIcon).font(.system(size: 40))
             Text(emptyTitle)
-                .font(.custom("IvyJournal-Bold", size: 20))
-                .foregroundStyle(Color.preto)
+                .font(.custom("Gaegu-Bold", size: 20))
+                .foregroundStyle(Color.charcoal)
             Text(emptySubtitle)
-                .font(.system(size: 14, weight: .light))
-                .foregroundStyle(Color.preto.opacity(0.6))
+                .font(.luckySubheadline)
+                .foregroundStyle(Color.charcoal.opacity(0.6))
                 .multilineTextAlignment(.center)
             NavigationLink(destination: ActivityView()) {
                 Text("Discover activities")
             }
-            .modifier(AccentButtonModifier())
+            .buttonStyle(.luckyPrimary)
             .padding(.top, 8)
         }
         .frame(maxWidth: .infinity)

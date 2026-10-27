@@ -7,40 +7,97 @@
 
 import SwiftUI
 
-struct TabBar: View {
+private enum AppTab: CaseIterable {
+    case dashboard, discover, myDates, profile
 
-    private enum AppTab {
-        case dashboard, discover, myDates, profile
+    var title: String {
+        switch self {
+        case .dashboard: "Dashboard"
+        case .discover: "Discover"
+        case .myDates: "My Dates"
+        case .profile: "Profile"
+        }
     }
+
+    var icon: String {
+        switch self {
+        case .dashboard: "star"
+        case .discover: "sparkle.magnifyingglass"
+        case .myDates: "heart"
+        case .profile: "person"
+        }
+    }
+}
+
+struct TabBar: View {
 
     @State private var selectedTab: AppTab = .dashboard
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            Tab("Dashboard", systemImage: "house", value: .dashboard) {
+            Tab("Dashboard", systemImage: AppTab.dashboard.icon, value: .dashboard) {
                 DashboardView()
+                    .toolbarVisibility(.hidden, for: .tabBar)
             }
 
-            Tab(value: .discover) {
+            Tab("Discover", systemImage: AppTab.discover.icon, value: .discover) {
                 ActivityView()
-            } label: {
-                Label(
-                    "Discover",
-                    systemImage: selectedTab == .discover ? "sparkle.magnifyingglass" : "magnifyingglass"
-                )
+                    .toolbarVisibility(.hidden, for: .tabBar)
             }
 
-            Tab("My Dates", systemImage: "heart", value: .myDates) {
+            Tab("My Dates", systemImage: AppTab.myDates.icon, value: .myDates) {
                 MyDatesView()
+                    .toolbarVisibility(.hidden, for: .tabBar)
             }
 
-            Tab("Profile", systemImage: "person", value: .profile) {
+            Tab("Profile", systemImage: AppTab.profile.icon, value: .profile) {
                 ProfileView()
+                    .toolbarVisibility(.hidden, for: .tabBar)
             }
         }
+        // The system bar is hidden inside each tab; the Lucky Stars pill below replaces it.
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            LuckyTabBar(selection: $selectedTab)
+        }
+    }
+}
+
+// MARK: - Custom bar
+
+private struct LuckyTabBar: View {
+    @Binding var selection: AppTab
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(AppTab.allCases, id: \.self) { tab in
+                Button {
+                    selection = tab
+                } label: {
+                    VStack(spacing: 2) {
+                        Image(systemName: tab.icon)
+                            .font(.system(size: 22, weight: .regular))
+                            .frame(height: 26)
+
+                        Text(tab.title)
+                            .font(selection == tab ? .luckySubheadlineStrong : .luckySubheadline)
+                    }
+                    .foregroundStyle(selection == tab ? Color.luckyBlue : Color.inkSecondary)
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selection == tab ? .isSelected : [])
+            }
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 8)
+        .luckyOutline(Capsule(), shadowOffset: 0)
+        .padding(.horizontal, 10)
+        .padding(.bottom, 4)
     }
 }
 
 #Preview {
     TabBar()
+        .environment(AppState())
 }

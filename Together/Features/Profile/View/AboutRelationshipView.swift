@@ -23,6 +23,7 @@ struct AboutRelationshipView: View {
                 }
             }
         }
+        .luckyBackButton(title: "Your Relationship")
         .task { await viewModel.load() }
     }
 }
@@ -35,41 +36,47 @@ struct PartnerView: View {
 
     var body: some View {
 
-        List{
-            Section{
-                HStack {
-                    Text("Partner")
+        ScrollView {
+            VStack(spacing: 20) {
+                LuckyGroup {
+                    HStack {
+                        Text("Partner")
+                            .font(.luckyBodyStrong)
+                            .foregroundStyle(Color.charcoal)
 
-                    Spacer()
+                        Spacer()
 
-                    Text(viewModel.couple?.partner?.firstName ?? "")
-                        .multilineTextAlignment(.trailing)
-                        .foregroundStyle(.secondary)
+                        Text(viewModel.couple?.partner?.firstName ?? "")
+                            .font(.luckyBody)
+                            .multilineTextAlignment(.trailing)
+                            .foregroundStyle(Color.inkSecondary)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 22)
+
+                    HStack {
+                        Text("Together Since")
+                            .font(.luckyBodyStrong)
+                            .foregroundStyle(Color.charcoal)
+
+                        Spacer()
+
+                        Text(viewModel.anniversaryDate, style: .date)
+                            .font(.luckyBody)
+                            .multilineTextAlignment(.trailing)
+                            .foregroundStyle(Color.inkSecondary)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 22)
                 }
 
-                HStack {
-                    Text("Together Since")
-
-                    Spacer()
-
-                    Text(viewModel.anniversaryDate, style: .date)
-                        .multilineTextAlignment(.trailing)
-                        .foregroundStyle(.secondary)
-                }
-
-
-
-            }
-            .padding(.vertical, 10)
-            .tint(.accent)
-
-
-            Section{
-                Button(role: .destructive) {
+                Button {
                     showUnpairAlert = true
                 } label: {
                     Text("Unpair partner")
                 }
+                .buttonStyle(.luckyDestructive)
+                .padding(.trailing, Outline.shadowOffset)
                 .alert("Unpair Partner", isPresented: $showUnpairAlert) {
                     Button("Cancel", role: .cancel) { }
                     Button("Unpair", role: .destructive) {
@@ -84,22 +91,12 @@ struct PartnerView: View {
                 } message: {
                     Text("Unpairing isn't supported yet — it's on the list.")
                 }
-
             }
-            .padding(.vertical, 9)
-
-
+            .padding(.horizontal, 20)
+            .padding(.top, 60)
+            .padding(.bottom, 24)
         }
-        .scrollContentBackground(.hidden)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("Your Relationship")
-                    .font(.title.weight(.semibold))
-            }
-
-
-        }
+        .scrollIndicators(.hidden)
     }
 }
 
@@ -113,8 +110,8 @@ struct NoPartnerView: View{
             NavigationLink("Invite my partner") {
                 ShareCodePairingView()
             }
-            .modifier(AccentButtonModifier())
-            .padding(.top, 40)
+            .buttonStyle(.luckyPrimary)
+            .padding(.top, Spacing.l)
 
         }
 

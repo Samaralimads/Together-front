@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SignInView: View {
     @State private var viewModel = AuthViewModel()
-    @State private var signInTrigger = false
     @State private var showForgotPassword = false
     @Environment(AppState.self) private var appState
 
@@ -17,7 +16,7 @@ struct SignInView: View {
         Background {
             WhiteCard(title: "Welcome Back!", description: "Sign in to continue building memories and discovering new activities together.") {
 
-                VStack(spacing: 10) {
+                VStack(spacing: Spacing.s) {
                     InputField(
                         placeholder: "Email",
                         type: .email,
@@ -36,70 +35,53 @@ struct SignInView: View {
                             hasMinLength: viewModel.hasMinLength
                         )
                     )
-                    
+
                     HStack {
                         Spacer()
                         Button("Forgot your password?") {
                             showForgotPassword = true
                         }
-                        .font(.footnote)
-                        .foregroundColor(.accent)
-                        .fontWeight(.semibold)
+                        .font(.luckySubheadlineStrong)
+                        .foregroundStyle(Color.luckyBlue)
                         .zIndex(1)
                     }
-                    .padding(.bottom, 16)
-                    
+                    .padding(.trailing, Spacing.xs)
                 }
-                .padding(.vertical, 40)
 
                 if let error = viewModel.errorMessage {
                     Text(error)
-                        .font(.footnote)
-                        .foregroundColor(.red)
+                        .font(.luckySubheadline)
+                        .foregroundStyle(Color.destructiveRed)
                         .multilineTextAlignment(.center)
-                        .padding(.bottom, 8)
                 }
 
                 Button("Sign In") {
-                    signInTrigger = true
+                    Task { await viewModel.signIn(appState: appState) }
                 }
-                .task(id: signInTrigger) {
-                    guard signInTrigger else { return }
-                    await viewModel.signIn(appState: appState)
-                }
-                .modifier(AccentButtonModifier())
+                .buttonStyle(.luckyPrimary)
                 .disabled(!viewModel.canSignIn)
-                .opacity(viewModel.canSignIn ? 1 : 0.6)
 
-                Text("or")
-                    .foregroundColor(.gray)
+                OrDivider()
 
-                Button {
+                AppleSignInButton(title: "Sign in with Apple") {
                     // TODO: Sign in with Apple
-                } label: {
-                    Text(" Sign in with Apple")
-                        .fontWeight(.semibold)
-                        .foregroundColor(.preto)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .cornerRadius(30)
-                        .glassEffect()
-                        .shadow(color: .black.opacity(0.13), radius: 2, x: 0, y: 4)
                 }
 
-                HStack {
+                HStack(spacing: Spacing.xs) {
                     Text("Already have an account?")
+                        .foregroundStyle(Color.inkSecondary)
                     NavigationLink("Sign up") {
                         SignUpView()
                             .navigationBarBackButtonHidden(true)
                     }
-                    .foregroundColor(.accent)
+                    .foregroundStyle(Color.luckyBlue)
                     .fontWeight(.bold)
+                    .underline()
                 }
-                .font(.footnote)
-                .padding(.top, 30)
+                .font(.luckySubheadline)
             }
         }
+        .luckyBackButton()
         .navigationDestination(isPresented: $showForgotPassword) {
             ForgotPasswordView()
         }

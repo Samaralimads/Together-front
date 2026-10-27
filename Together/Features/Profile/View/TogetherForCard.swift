@@ -17,54 +17,63 @@ struct TogetherForCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text("Together for")
-                    .font(.custom("IvyJournal-Bold", size: 24))
+        VStack(alignment: .leading, spacing: Spacing.m) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("SINCE \(anniversary.formatted(.dateTime.day().month(.abbreviated).year()).uppercased())")
+                        .font(.luckyCaptionStrong)
+                        .foregroundStyle(Color.luckyBlue)
+
+                    Text("Together for")
+                        .font(.luckyHeadline)
+                        .foregroundStyle(Color.charcoal)
+                }
+
                 Spacer()
-                
+
                 Button {
                     onEdit()
                 } label: {
-                    Image(systemName: "pencil")
-                        .font(.system(size: 22))
-                        .foregroundColor(.accent)
+                    Text("Edit")
+                        .font(.luckySubheadlineStrong)
+                        .foregroundStyle(Color.luckyBlue)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(Capsule().fill(Color.luckyBlueTint))
                 }
             }
-            
-            HStack(spacing: 30) {
+
+            HStack(spacing: Spacing.s) {
                 TimeUnitView(value: String(format: "%02d", timeComponents.years), label: "Years")
                 TimeUnitView(value: String(format: "%02d", timeComponents.months), label: "Months")
                 TimeUnitView(value: String(format: "%02d", timeComponents.days), label: "Days")
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 32)
-                    .fill(Color.accent.opacity(0.9))
-            )
         }
         .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(.branco)
-        )
+        .luckyCard()
+        .padding(.trailing, Outline.shadowOffset)
     }
 }
 
 struct TimeUnitView: View {
     let value: String
     let label: String
-    
-    var body: some View {
-        VStack() {
-            Text(value)
-                .font(.custom("IvyJournal-Bold", size: 35))
-            Text(label)
-                .font(.system(size: 11))
-        }
-        .foregroundColor(.branco)
 
+    var body: some View {
+        VStack(spacing: 2) {
+            Text(value)
+                .font(.luckyTitle)
+                .foregroundStyle(Color.luckyBlue)
+            Text(label.uppercased())
+                .font(.luckyCaptionStrong)
+                .foregroundStyle(Color.charcoal)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 14)
+        .overlay(
+            RoundedRectangle(cornerRadius: Radius.tile, style: .continuous)
+                .strokeBorder(Color.charcoal, lineWidth: Outline.thick)
+        )
     }
 }
 

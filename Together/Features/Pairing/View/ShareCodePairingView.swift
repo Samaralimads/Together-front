@@ -18,46 +18,37 @@ struct ShareCodePairingView: View {
 
                 if isLoading {
                     ProgressView()
-                        .padding(.vertical, 40)
+                        .padding(.vertical, Spacing.xl)
                 } else {
-                    HStack(spacing: 10) {
+                    HStack(spacing: Spacing.s) {
                         ForEach(Array(code), id: \.self) { character in
                             CodeDigitBox(digit: String(character), isActive: false)
                         }
                     }
-                    .padding(.vertical, 40)
+                    .padding(.vertical, Spacing.l)
 
                     ShareLink(
                         item: code,
                         subject: Text("Pairing Code"),
                         message: Text("Join me using this pairing code: \(code)")
                     ) {
-                        HStack {
+                        HStack(spacing: Spacing.s) {
                             Image(systemName: "square.and.arrow.up")
                             Text("Share Code")
                         }
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            Image("buttonBG")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill))
-                        .cornerRadius(30)
-                        .shadow(color: .black.opacity(0.13), radius: 2, x: 0, y: 4)
                     }
+                    .buttonStyle(.luckyPrimary)
 
                     Button("Next") {
                         navigateToAnniversary = true
                     }
-                    .font(.footnote)
-                    .foregroundColor(.accent)
-                    .fontWeight(.semibold)
-                    .padding(.top, 16)
+                    .font(.luckySubheadlineStrong)
+                    .foregroundStyle(Color.luckyBlue)
+                    .underline()
                 }
             }
         }
+        .luckyBackButton()
         .task {
             do {
                 let invitation = try await CoupleService.getMyInvitationCode()

@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SignUpView: View {
     @State private var viewModel = AuthViewModel()
-    @State private var signUpTrigger = false
 
     @Environment(AppState.self) private var appState
 
@@ -17,7 +16,7 @@ struct SignUpView: View {
         Background {
             WhiteCard(title: "Create Your Account", description: "Sign up to begin planning meaningful moments as a couple.") {
 
-                VStack(spacing: 10) {
+                VStack(spacing: Spacing.s) {
                     InputField(
                         placeholder: "Name",
                         type: .name,
@@ -49,56 +48,41 @@ struct SignUpView: View {
                         )
                     )
                 }
-                .padding(.vertical, 40)
 
                 if let error = viewModel.errorMessage {
                     Text(error)
-                        .font(.footnote)
-                        .foregroundColor(.red)
+                        .font(.luckySubheadline)
+                        .foregroundStyle(Color.destructiveRed)
                         .multilineTextAlignment(.center)
-                        .padding(.bottom, 8)
                 }
 
                 Button("Sign Up") {
-                    signUpTrigger = true
+                    Task { await viewModel.signUp(appState: appState) }
                 }
-                .task(id: signUpTrigger) {
-                    guard signUpTrigger else { return }
-                    await viewModel.signUp(appState: appState)
-                }
-                .modifier(AccentButtonModifier())
+                .buttonStyle(.luckyPrimary)
                 .disabled(!viewModel.canSignUp)
-                .opacity(viewModel.canSignUp ? 1 : 0.6)
 
-                Text("or")
-                    .foregroundColor(.gray)
+                OrDivider()
 
-                Button {
+                AppleSignInButton(title: "Sign up with Apple") {
                     // TODO: Sign up with Apple
-                } label: {
-                    Text(" Sign up with Apple")
-                        .fontWeight(.semibold)
-                        .foregroundColor(.preto)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .cornerRadius(30)
-                        .glassEffect()
-                        .shadow(color: .black.opacity(0.13), radius: 2, x: 0, y: 4)
                 }
 
-                HStack {
+                HStack(spacing: Spacing.xs) {
                     Text("Already have an account?")
+                        .foregroundStyle(Color.inkSecondary)
                     NavigationLink("Sign in") {
                         SignInView()
                             .navigationBarBackButtonHidden(true)
                     }
-                    .foregroundColor(.accent)
+                    .foregroundStyle(Color.luckyBlue)
                     .fontWeight(.bold)
+                    .underline()
                 }
-                .font(.footnote)
-                .padding(.top, 30)
+                .font(.luckySubheadline)
             }
         }
+        .luckyBackButton()
     }
 }
 

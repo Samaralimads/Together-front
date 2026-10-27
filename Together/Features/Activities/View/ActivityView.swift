@@ -15,13 +15,18 @@ struct ActivityView: View {
         Background {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
+                    Text("Discover")
+                        .font(.luckyScreenTitle)
+                        .foregroundStyle(Color.luckyBlue)
+                        .padding(.leading, Spacing.xs)
+
                     searchBar
                     categoriesRow
                     listOfActivities
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 60)
-                .padding(.bottom, 40)
+                .padding(.top, 12)
+                .padding(.bottom, 24)
             }
             .scrollIndicators(.hidden)
         }
@@ -37,12 +42,10 @@ private extension ActivityView {
     var searchBar: some View {
         HStack(spacing: 12) {
             HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(Color.black.opacity(0.6))
-
-                TextField("Search an activity", text: $viewModel.searchText)
+                TextField("", text: $viewModel.searchText, prompt: Text("Search an activity").foregroundStyle(Color.placeholderGrey))
                     .textFieldStyle(.plain)
-                    .foregroundStyle(Color.black)
+                    .font(.luckyBody)
+                    .foregroundStyle(Color.charcoal)
                     .onSubmit {
                         Task { await viewModel.applyFilters() }
                     }
@@ -53,33 +56,37 @@ private extension ActivityView {
                         Task { await viewModel.applyFilters() }
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(Color.gray)
+                            .foregroundStyle(Color.placeholderGrey)
                     }
                 }
+
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(Color.charcoal)
             }
-            .padding()
-            .background(.white)
-            .clipShape(Capsule())
+            .padding(.horizontal, 20)
+            .frame(height: 52)
+            .luckyOutline(Capsule())
 
             Button {
                 showFilters = true
             } label: {
                 ZStack(alignment: .topTrailing) {
-                    Image(systemName: "slider.horizontal.3")
-                        .foregroundStyle(Color.black.opacity(0.6))
-                        .padding()
-                        .background(Color.white)
-                        .clipShape(Capsule())
+                    Image(systemName: "line.3.horizontal")
+                        .font(.system(size: 19, weight: .bold))
+                        .foregroundStyle(Color.charcoal)
+                        .frame(width: 52, height: 52)
+                        .luckyOutline(Circle())
 
                     if viewModel.filterState.totalSelected > 0 {
                         Text("\(viewModel.filterState.totalSelected)")
-                            .font(.caption2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(Color.white)
-                            .frame(width: 20, height: 20)
-                            .background(Color(.accent))
+                            .font(.luckyCaptionStrong)
+                            .foregroundStyle(Color.cardFill)
+                            .frame(width: 22, height: 22)
+                            .background(Color.luckyBlue)
                             .clipShape(Circle())
-                            .offset(x: 4, y: -3)
+                            .overlay(Circle().strokeBorder(Color.charcoal, lineWidth: 1.5))
+                            .offset(x: 4, y: -4)
                     }
                 }
             }
@@ -90,11 +97,12 @@ private extension ActivityView {
                     }
             }
         }
+        .padding(.trailing, 3)
     }
 
     var categoriesRow: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: 16) {
+            HStack(spacing: 8) {
                 categoryChip(title: "All", isSelected: viewModel.selectedCategoryName == nil, imageName: "Sparkles") {
                     viewModel.selectedCategoryName = nil
                     Task { await viewModel.applyFilters() }
@@ -118,23 +126,24 @@ private extension ActivityView {
     func categoryChip(title: String, isSelected: Bool, imageName: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             VStack(spacing: 6) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 18)
-                        .fill(isSelected ? Color.white : Color.white.opacity(0.25))
-                        .frame(width: 80, height: 70)
-
-                    Image(imageName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 40, height: 40)
-                }
+                Image(imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(10)
+                    .frame(width: 76, height: 72)
+                    .luckyOutline(
+                        RoundedRectangle(cornerRadius: Radius.tile, style: .continuous),
+                        stroke: isSelected ? Color.charcoal : Color.inkSecondary,
+                        lineWidth: isSelected ? 3 : Outline.thick,
+                        shadowOffset: isSelected ? 3 : 0
+                    )
 
                 Text(title)
-                    .font(.caption)
-                    .foregroundStyle(Color.white)
-                    .fontWeight(isSelected ? .bold : .medium)
+                    .font(isSelected ? .luckySubheadlineStrong : .luckySubheadline)
+                    .foregroundStyle(isSelected ? Color.charcoal : Color.inkSecondary)
             }
         }
+        .buttonStyle(.plain)
     }
 
     var listOfActivities: some View {
@@ -145,22 +154,23 @@ private extension ActivityView {
                     .padding(.top, 40)
             } else if let error = viewModel.errorMessage {
                 Text(error)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
+                    .font(.luckySubheadline)
+                    .foregroundStyle(Color.destructiveRed)
                     .frame(maxWidth: .infinity)
                     .padding(.top, 40)
             } else if viewModel.activities.isEmpty {
                 Text("No activities found.")
-                    .font(.subheadline)
-                    .foregroundStyle(Color.white.opacity(0.7))
+                    .font(.luckyBody)
+                    .foregroundStyle(Color.inkSecondary)
                     .frame(maxWidth: .infinity)
                     .padding(.top, 40)
             } else {
-                LazyVStack(alignment: .leading, spacing: 16) {
+                LazyVStack(alignment: .leading, spacing: 20) {
                     ForEach(viewModel.activities) { activity in
                         NavigationLink(destination: ActivityDetailView(activity: activity)) {
                             ActivityCard(activity: activity)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
             }

@@ -19,91 +19,97 @@ struct ActivityDetailView: View {
 
     var body: some View {
         Background {
-            VStack(spacing: 60) {
+            ScrollView {
+                VStack(spacing: Spacing.xl) {
 
-                HStack(alignment: .bottom) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(activity.categoryName)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(Color.white)
+                    HStack(alignment: .bottom) {
+                        VStack(alignment: .leading, spacing: Spacing.xs) {
+                            Text(activity.categoryName)
+                                .font(.luckyBody)
+                                .foregroundStyle(Color.luckyBlue)
 
-                        Text(activity.title)
-                            .font(.custom("IvyJournal-Bold", size: 24))
-                            .foregroundStyle(Color.black)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-
-                    Spacer()
-
-                    Image(activity.category.imageName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 120, height: 120)
-                }
-                .padding(.horizontal, 15)
-
-                VStack(alignment: .leading, spacing: 24) {
-
-                    InfoTags(activity: activity)
-
-                    Text(activity.description)
-                        .font(.body)
-                        .foregroundStyle(Color.black.opacity(0.8))
-
-                    Divider()
-
-                    HStack {
-                        Text("Pick a date")
-                            .font(.body)
-                            .fontWeight(.semibold)
-                        Spacer()
-                        DatePicker("", selection: $selectedDate, displayedComponents: .date)
-                            .labelsHidden()
-                    }
-
-                    Divider()
-
-                    HStack {
-                        Text("Pick a time")
-                            .font(.body)
-                            .fontWeight(.semibold)
-                        Spacer()
-                        DatePicker("", selection: $selectedTime, displayedComponents: .hourAndMinute)
-                            .labelsHidden()
-                    }
-                    .padding(.bottom, 10)
-
-                    if proposalSuccess {
-                        HStack {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(Color.green)
-                            Text("Proposal sent to your partner!")
-                                .font(.subheadline)
-                                .foregroundStyle(Color.green)
+                            Text(activity.title)
+                                .font(.luckyTitle)
+                                .foregroundStyle(Color.luckyBlue)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
-                    }
 
-                    Button(isProposing ? "Sending..." : "Plan this activity", action: proposeActivity)
-                        .modifier(AccentButtonModifier())
-                        .disabled(isProposing)
+                        Spacer()
 
-                    Button(action: toggleFavorite) {
-                        Label(
-                            isFavorite ? "Saved to favorites" : "Save to favorites",
-                            systemImage: isFavorite ? "heart.fill" : "heart"
-                        )
+                        Image(activity.category.imageName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 110, height: 110)
                     }
-                    .contentTransition(.symbolEffect(.replace.downUp.byLayer, options: .nonRepeating))
-                    .frame(maxWidth: .infinity)
-                    .disabled(isLoadingFavorite)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 60)
+
+                    VStack(alignment: .leading, spacing: Spacing.l) {
+
+                        InfoTags(activity: activity)
+
+                        Text(activity.description)
+                            .font(.luckyBody)
+                            .foregroundStyle(Color.charcoal)
+
+                        Rectangle().fill(Color.rowDivider).frame(height: 1)
+
+                        HStack {
+                            Text("Pick a date")
+                                .font(.luckyLabel)
+                                .foregroundStyle(Color.charcoal)
+                            Spacer()
+                            DatePicker("", selection: $selectedDate, displayedComponents: .date)
+                                .labelsHidden()
+                                .tint(Color.luckyBlue)
+                        }
+
+                        Rectangle().fill(Color.rowDivider).frame(height: 1)
+
+                        HStack {
+                            Text("Pick a time")
+                                .font(.luckyLabel)
+                                .foregroundStyle(Color.charcoal)
+                            Spacer()
+                            DatePicker("", selection: $selectedTime, displayedComponents: .hourAndMinute)
+                                .labelsHidden()
+                                .tint(Color.luckyBlue)
+                        }
+                        .padding(.bottom, Spacing.s)
+
+                        if proposalSuccess {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                Text("Proposal sent to your partner!")
+                                    .font(.luckySubheadlineStrong)
+                            }
+                            .foregroundStyle(Color.luckyBlue)
+                        }
+
+                        Button(isProposing ? "Sending..." : "Plan this activity", action: proposeActivity)
+                            .buttonStyle(.luckyPrimary)
+                            .disabled(isProposing)
+
+                        Button(action: toggleFavorite) {
+                            HStack(spacing: Spacing.s) {
+                                Text(isFavorite ? "Saved to favorites" : "Save to favorites")
+                                Image(systemName: isFavorite ? "star.fill" : "star")
+                                    .foregroundStyle(Color.starYellow)
+                                    .contentTransition(.symbolEffect(.replace.downUp.byLayer, options: .nonRepeating))
+                            }
+                        }
+                        .buttonStyle(.luckySecondary)
+                        .disabled(isLoadingFavorite)
+                    }
+                    .padding(20)
+                    .luckyCard()
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 24)
                 }
-                .padding(20)
-                .background(Color.branco)
-                .clipShape(.rect(cornerRadius: 30))
             }
-            .padding(.horizontal, 20)
+            .scrollIndicators(.hidden)
         }
+        .luckyBackButton()
         .task {
             do {
                 let favorites = try await ActivityService.fetchFavorites()

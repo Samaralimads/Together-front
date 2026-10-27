@@ -27,45 +27,40 @@ struct WhiteCard<Content: View>: View {
     
     
     var body: some View {
-//        ScrollView{
-            
-            
-            VStack() {
-                
-                VStack(spacing: 15) {
-                    
-                    Text(title)
-                        .font(.custom("IvyJournal-Bold", size: 30))
-                    
-                    Text(description)
-                        .font(.system(size: 15, weight: .light))
-                        .padding(.horizontal, 10)
-                    
-                }
-                .multilineTextAlignment(.center)
-                
-                
-                
-                content
-                
-            }
-            .padding(.top, 40)
-            .padding(.bottom, 30)
-            .padding(.horizontal, 10)
-            .frame(maxWidth: 380)
-            .frame(minHeight: 400)
-            .background(Color.branco)
-            .cornerRadius(32)
-            .padding()
-        }
-    }
-//}
+        VStack(spacing: Spacing.xl) {
 
+            VStack(spacing: Spacing.m) {
+
+                Text(title)
+                    .font(.luckyTitle)
+                    .foregroundStyle(Color.luckyBlue)
+
+                Text(description)
+                    .font(.luckyBody)
+                    .foregroundStyle(Color.charcoal)
+                    .padding(.horizontal, Spacing.s)
+
+            }
+            .multilineTextAlignment(.center)
+
+            VStack(spacing: Spacing.l) {
+                content
+            }
+
+        }
+        .padding(.top, 36)
+        .padding(.bottom, 28)
+        .padding(.horizontal, 20)
+        .frame(maxWidth: 380)
+        .luckyCard()
+        .padding(.horizontal, 20)
+    }
+}
 
 
 #Preview {
     WhiteCard(title: "This is the title that is longer now to test", description: "This is a short description, longer now to test the spacing"){
         Spacer()
         Text("And this is the content of the card")
-    }.background(Color.blue.opacity(0.2))
+    }.background { Image("LuckyBackground").resizable().scaledToFill().ignoresSafeArea() }
 }

@@ -12,9 +12,9 @@ struct InfoTags: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            InfoTag(icon: "clock.fill", text: "\(activity.duration / 60)h", color: .rosa)
-            InfoTag(icon: "location.fill", text: activity.isIndoor ? "Indoors" : "Outdoors", color: .lilas)
-            InfoTag(icon: "wallet.bifold.fill", text: activity.budget, color: .verde)
+            InfoTag(icon: "clock.fill", text: "\(activity.duration / 60)h", color: .avatarPink)
+            InfoTag(icon: "location.fill", text: activity.isIndoor ? "Indoors" : "Outdoors", color: .luckyBlue)
+            InfoTag(icon: "wallet.bifold.fill", text: activity.budget, color: .luckyBlueLight)
         }
     }
 }
@@ -27,15 +27,16 @@ struct InfoTag: View {
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
-                .font(.caption)
+                .font(.luckyCaptionStrong)
             Text(text)
-                .font(.caption)
-                .bold()
+                .font(.luckySubheadlineStrong)
+                .lineLimit(1)
         }
+        .fixedSize(horizontal: true, vertical: false)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(color.opacity(0.9))
-        .foregroundStyle(Color.branco)
+        .background(color)
+        .foregroundStyle(Color.cardFill)
         .clipShape(Capsule())
     }
 }

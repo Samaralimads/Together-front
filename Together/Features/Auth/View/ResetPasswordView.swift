@@ -19,7 +19,7 @@ struct ResetPasswordView: View {
         Background {
             WhiteCard(title: "Reset Password", description: "Enter a new password to secure your account.") {
 
-                VStack(spacing: 10) {
+                VStack(spacing: Spacing.s) {
                     InputField(
                         placeholder: "Password",
                         type: .password,
@@ -32,14 +32,13 @@ struct ResetPasswordView: View {
                         )
                     )
                 }
-                .padding(.vertical, 40)
+                .padding(.top, Spacing.m)
 
                 if let error = errorMessage {
                     Text(error)
-                        .font(.footnote)
-                        .foregroundColor(.red)
+                        .font(.luckySubheadline)
+                        .foregroundStyle(Color.destructiveRed)
                         .multilineTextAlignment(.center)
-                        .padding(.bottom, 8)
                 }
 
                 Button(isLoading ? "Resetting..." : "Reset") {
@@ -60,12 +59,11 @@ struct ResetPasswordView: View {
                         isLoading = false
                     }
                 }
-                .modifier(AccentButtonModifier())
+                .buttonStyle(.luckyPrimary)
                 .disabled(!viewModel.isPasswordValid || isLoading)
-                .opacity(viewModel.isPasswordValid ? 1 : 0.6)
             }
         }
-        .navigationBarBackButtonHidden(true)
+        .luckyBackButton()
         .navigationDestination(isPresented: $navigateToSignIn) {
             SignInView()
                 .navigationBarBackButtonHidden(true)

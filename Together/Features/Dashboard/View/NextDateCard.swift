@@ -24,17 +24,17 @@ struct NextDateCard: View {
                     .font(.system(.caption2, weight: .bold))
                     .kerning(0.5)
             }
-            .foregroundStyle(Color.branco)
+            .foregroundStyle(Color.cardFill)
             .padding(.horizontal)
             .padding(.vertical, 6)
-            .background(Color.laranja.opacity(0.9))
+            .background(Color.luckyBlue.opacity(0.9))
             .clipShape(Capsule())
 
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(planned.activityTitle)
-                        .font(.custom("IvyJournal-Bold", size: 22, relativeTo: .title2))
-                        .foregroundStyle(Color.preto)
+                        .font(.custom("Gaegu-Bold", size: 22, relativeTo: .title2))
+                        .foregroundStyle(Color.charcoal)
 
                     HStack(spacing: 8) {
                         Label(date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()), systemImage: "calendar")
@@ -48,8 +48,8 @@ struct NextDateCard: View {
 
                 VStack(spacing: 0) {
                     Text("\(days)")
-                        .font(.custom("IvyJournal-Bold", size: 48, relativeTo: .largeTitle))
-                        .foregroundStyle(Color.preto)
+                        .font(.custom("Gaegu-Bold", size: 48, relativeTo: .largeTitle))
+                        .foregroundStyle(Color.charcoal)
                     Text("DAYS TO GO")
                         .font(.system(.caption2, weight: .semibold))
                         .foregroundStyle(.secondary)
@@ -61,7 +61,7 @@ struct NextDateCard: View {
                 Button(action: onAddToCalendar) {
                     Image(systemName: "calendar.badge.plus")
                         .font(.body)
-                        .foregroundStyle(Color.preto)
+                        .foregroundStyle(Color.charcoal)
                         .frame(width: 44, height: 44)
                         .background(Color(.systemGray6))
                         .clipShape(.rect(cornerRadius: 12))
@@ -69,14 +69,14 @@ struct NextDateCard: View {
 
                 Button("Details →", action: onDetails)
                     .font(.system(.subheadline, weight: .semibold))
-                    .foregroundStyle(Color.branco)
+                    .foregroundStyle(Color.cardFill)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 12)
-                    .background(Color.laranja.opacity(0.9))
+                    .background(Color.luckyBlue.opacity(0.9))
                     .clipShape(.rect(cornerRadius: 20))
             }
         }
         .padding(20)
-        .background(RoundedRectangle(cornerRadius: 24).fill(.branco))
+        .luckyCard()
     }
 }

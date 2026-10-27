@@ -15,70 +15,70 @@ struct ProfileAvatarsCard: View {
     
     var body: some View {
         ZStack {
-            HStack(spacing: -10){
-                
+            HStack(spacing: -14){
+
                 // First avatar (current user)
                 Circle()
-                    .stroke(.lilas, lineWidth: 7)
-                    .fill(.branco)
-                    .frame(width: 100, height: 100)
+                    .fill(Color.cardFill)
+                    .frame(width: 84, height: 84)
                     .overlay(
                         Group {
                             if let image = profileImage {
                                 Image(uiImage: image)
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(width: 100, height: 100)
+                                    .frame(width: 84, height: 84)
                                     .clipShape(Circle())
                             } else {
                                 Text(partner1Initial)
-                                    .font(.system(size: 40, weight: .semibold))
-                                    .foregroundColor(.lilas)
+                                    .font(.luckyTitle)
+                                    .foregroundStyle(Color.luckyBlue)
                             }
                         }
                     )
-                    .zIndex(1)
-                
+                    .overlay(Circle().strokeBorder(Color.charcoal, lineWidth: Outline.thick))
+                    .background(Circle().fill(Color.charcoal).offset(x: 3, y: 3))
+                    .zIndex(0)
+
                 // Second avatar (partner or add button)
-                    Circle()
-                        .stroke(.verde, lineWidth: 7)
-                        .fill(.branco)
-                        .frame(width: 100, height: 100)
-                        .overlay(
-                            Group {
-                                if let initial = partner2Initial {
-                                    Text(initial)
-                                        .font(.system(size: 40, weight: .semibold))
-                                        .foregroundColor(.verde)
-                                } else {
-                                    Button {
-                                        onAddPartnerClick()
-                                    } label: {
-                                        Image(systemName: "person.badge.plus.fill")
-                                            .font(.system(size: 35))
-                                            .foregroundColor(.verde)
-                                    }
+                Circle()
+                    .fill(Color.avatarPink)
+                    .frame(width: 84, height: 84)
+                    .overlay(
+                        Group {
+                            if let initial = partner2Initial {
+                                Text(initial)
+                                    .font(.luckyTitle)
+                                    .foregroundStyle(Color.charcoal)
+                            } else {
+                                Button {
+                                    onAddPartnerClick()
+                                } label: {
+                                    Image(systemName: "person.badge.plus.fill")
+                                        .font(.system(size: 30))
+                                        .foregroundStyle(Color.charcoal)
                                 }
                             }
-                        )
+                        }
+                    )
+                    .overlay(Circle().strokeBorder(Color.charcoal, lineWidth: Outline.thick))
+                    .background(Circle().fill(Color.charcoal).offset(x: 3, y: 3))
+                    .zIndex(1)
             }
-            .overlay(alignment: .bottomTrailing) {
+            .overlay(alignment: .bottomLeading) {
                 // Camera icon
                 Button {
                     onCameraClick()
                 } label: {
-                    ZStack {
-                        Circle()
-                            .stroke(.lilas, lineWidth: 5)
-                            .fill(.branco)
-                            .frame(width: 35, height: 35)
-                        
-                        Image(systemName: "camera.fill")
-                            .foregroundColor(.lilas)
-                            .font(.system(size: 17))
-                    }
+                    Image(systemName: "camera.fill")
+                        .foregroundStyle(Color.charcoal)
+                        .font(.system(size: 14))
+                        .frame(width: 32, height: 32)
+                        .luckyOutline(Circle(), shadowOffset: 0)
                 }
-                .offset(x: -95, y: 10)
+                .offset(x: -4, y: 6)
+                .zIndex(2)
+                .accessibilityLabel("Change photo")
             }
         }
     }

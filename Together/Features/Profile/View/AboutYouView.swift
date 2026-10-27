@@ -16,54 +16,68 @@ struct AboutYouView: View {
 
     var body: some View {
         Background {
-            List {
-                Section {
-                    HStack {
-                        Text("Name")
-                        Spacer()
-                        TextField("Enter your name", text: $name)
-                            .multilineTextAlignment(.trailing)
-                            .foregroundStyle(.secondary)
+            ScrollView {
+                VStack(spacing: 20) {
+                    LuckyGroup {
+                        HStack {
+                            Text("Name")
+                                .font(.luckyBodyStrong)
+                                .foregroundStyle(Color.charcoal)
+                            Spacer()
+                            TextField("", text: $name, prompt: Text("Enter your name").foregroundStyle(Color.placeholderGrey))
+                                .multilineTextAlignment(.trailing)
+                                .font(.luckyBody)
+                                .foregroundStyle(Color.inkSecondary)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 22)
+
+                        HStack {
+                            Text("Email")
+                                .font(.luckyBodyStrong)
+                                .foregroundStyle(Color.charcoal)
+                            Spacer()
+                            TextField("", text: $email, prompt: Text("Enter your email").foregroundStyle(Color.placeholderGrey))
+                                .multilineTextAlignment(.trailing)
+                                .font(.luckyBody)
+                                .foregroundStyle(Color.inkSecondary)
+                                .keyboardType(.emailAddress)
+                                .textInputAutocapitalization(.never)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 22)
                     }
-                    .padding(.vertical, 10)
 
-                    HStack {
-                        Text("Email")
-                        Spacer()
-                        TextField("Enter your email", text: $email)
-                            .multilineTextAlignment(.trailing)
-                            .foregroundStyle(.secondary)
-                            .keyboardType(.emailAddress)
-                            .textInputAutocapitalization(.never)
+                    LuckyGroup {
+                        NavigationLink {
+                            ForgotPasswordView()
+                        } label: {
+                            SettingsRow(title: "Reset password")
+                        }
                     }
-                    .padding(.vertical, 10)
-                }
-                .tint(.accent)
 
-                Section {
-                    NavigationLink("Reset password", destination: ForgotPasswordView())
-                }
-                .tint(.primary)
-                .padding(.vertical, 10)
-
-                if let error = viewModel.saveError {
-                    Section {
+                    if let error = viewModel.saveError {
                         Text(error)
-                            .font(.footnote)
-                            .foregroundStyle(.red)
+                            .font(.luckySubheadline)
+                            .foregroundStyle(Color.destructiveRed)
                     }
-                }
 
-                if let error = viewModel.deleteError {
-                    Section {
+                    if let error = viewModel.deleteError {
                         Text(error)
-                            .font(.footnote)
-                            .foregroundStyle(.red)
+                            .font(.luckySubheadline)
+                            .foregroundStyle(Color.destructiveRed)
                     }
-                }
 
-                Section {
-                    Button(role: .destructive) {
+                    Button("Save") {
+                        Task {
+                            await viewModel.saveProfile(firstName: name, email: email)
+                        }
+                    }
+                    .buttonStyle(.luckyPrimary)
+                    .disabled(viewModel.isSaving)
+                    .padding(.trailing, Outline.shadowOffset)
+
+                    Button {
                         showDeleteAccountAlert = true
                     } label: {
                         if viewModel.isDeleting {
@@ -75,27 +89,17 @@ struct AboutYouView: View {
                             Text("Delete Account")
                         }
                     }
+                    .buttonStyle(.luckyDestructive)
                     .disabled(viewModel.isDeleting)
+                    .padding(.trailing, Outline.shadowOffset)
                 }
-                .padding(.vertical, 9)
+                .padding(.horizontal, 20)
+                .padding(.top, 60)
+                .padding(.bottom, 24)
             }
-            .scrollContentBackground(.hidden)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("About You")
-                        .font(.title.weight(.semibold))
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        Task {
-                            await viewModel.saveProfile(firstName: name, email: email)
-                        }
-                    }
-                    .disabled(viewModel.isSaving)
-                }
-            }
+            .scrollIndicators(.hidden)
         }
+        .luckyBackButton(title: "About You")
         .task {
             await viewModel.load()
             name = viewModel.user?.firstName ?? ""

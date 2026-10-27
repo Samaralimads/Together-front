@@ -23,14 +23,13 @@ struct ForgotPasswordView: View {
                     text: $viewModel.email,
                     isValid: viewModel.isEmailValid
                 )
-                .padding(.vertical, 60)
+                .padding(.top, Spacing.xl)
 
                 if let error = errorMessage {
                     Text(error)
-                        .font(.footnote)
-                        .foregroundColor(.red)
+                        .font(.luckySubheadline)
+                        .foregroundStyle(Color.destructiveRed)
                         .multilineTextAlignment(.center)
-                        .padding(.bottom, 8)
                 }
 
                 Button(isLoading ? "Sending..." : "Reset Password") {
@@ -47,11 +46,11 @@ struct ForgotPasswordView: View {
                         isLoading = false
                     }
                 }
-                .modifier(AccentButtonModifier())
+                .buttonStyle(.luckyPrimary)
                 .disabled(!viewModel.isEmailValid || isLoading)
-                .opacity(viewModel.isEmailValid ? 1 : 0.6)
             }
         }
+        .luckyBackButton()
         .navigationDestination(isPresented: $navigateToCode) {
             ResetCodeView(email: viewModel.email)
         }

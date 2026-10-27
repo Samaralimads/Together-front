@@ -18,14 +18,13 @@ struct AnniversaryView: View {
             WhiteCard(title: "How long have you been together?", description: "Choose the date your journey began. We'll use it to celebrate your milestones.") {
 
                 InputField(placeholder: "Together since:", date: $anniversary)
-                    .padding(.vertical, 40)
+                    .padding(.vertical, Spacing.l)
 
                 if let error = errorMessage {
                     Text(error)
-                        .font(.footnote)
-                        .foregroundColor(.red)
+                        .font(.luckySubheadline)
+                        .foregroundStyle(Color.destructiveRed)
                         .multilineTextAlignment(.center)
-                        .padding(.bottom, 8)
                 }
 
                 Button(isLoading ? "Saving..." : "Done") {
@@ -43,12 +42,11 @@ struct AnniversaryView: View {
                         isLoading = false
                     }
                 }
-                .modifier(AccentButtonModifier())
+                .buttonStyle(.luckyPrimary)
                 .disabled(anniversary == nil || isLoading)
-                .opacity(anniversary == nil ? 0.6 : 1)
             }
         }
-        .navigationBarBackButtonHidden(true)
+        .luckyBackButton()
     }
 }
 

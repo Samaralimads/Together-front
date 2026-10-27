@@ -15,29 +15,41 @@ struct ImportantDatesCard: View {
     @State private var dateToEdit: ImportantDate?
 
     var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text("Important Dates")
-                    .font(.custom("IvyJournal-Bold", size: 24))
+        VStack(alignment: .leading, spacing: Spacing.s) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("NEVER MISS A MOMENT")
+                        .font(.luckyCaptionStrong)
+                        .foregroundStyle(Color.luckyBlue)
+
+                    Text("Important Dates")
+                        .font(.luckyHeadline)
+                        .foregroundStyle(Color.charcoal)
+                }
 
                 Spacer()
 
                 Button {
                     onAddDate()
                 } label: {
-                    Image(systemName: "calendar.badge.plus")
-                        .font(.title2)
-                        .foregroundColor(.laranja)
+                    Text("Add date")
+                        .font(.luckySubheadlineStrong)
+                        .foregroundStyle(Color.luckyBlue)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(Capsule().fill(Color.luckyBlueTint))
                 }
             }
 
             List {
                 DateRowView(title: "Anniversary", date: anniversary, showsChevron: false)
                     .listRowBackground(Color.clear)
+                    .listRowSeparatorTint(Color.rowDivider)
 
                 ForEach(importantDates) { date in
                     DateRowView(title: date.label, date: date.date, showsChevron: true)
                         .listRowBackground(Color.clear)
+                        .listRowSeparatorTint(Color.rowDivider)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button(role: .destructive) {
                                 onDelete(date)
@@ -50,16 +62,18 @@ struct ImportantDatesCard: View {
                             } label: {
                                 Label("Edit", systemImage: "pencil")
                             }
-                            .tint(.accent)
+                            .tint(Color.luckyBlue)
                         }
                 }
             }
             .listStyle(.plain)
+            .scrollContentBackground(.hidden)
             .frame(height: CGFloat(min(importantDates.count + 1, 5)) * 70)
             .scrollDisabled(importantDates.count + 1 <= 5)
         }
         .padding(20)
-        .background(RoundedRectangle(cornerRadius: 24).fill(.branco))
+        .luckyCard()
+        .padding(.trailing, Outline.shadowOffset)
         .sheet(item: $dateToEdit) { date in
             EditImportantDateSheet(date: date) { updated in
                 onEdit(updated)
@@ -78,15 +92,17 @@ struct DateRowView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.body)
+                    .font(.luckyBodyStrong)
+                    .foregroundStyle(Color.charcoal)
                 Text(date, style: .date)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(.luckySubheadline)
+                    .foregroundStyle(Color.inkSecondary)
             }
             Spacer()
             if showsChevron {
                 Image(systemName: "chevron.right")
-                    .foregroundColor(.gray.opacity(0.3))
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(Color.luckyBlue)
             }
         }
     }
@@ -167,7 +183,7 @@ struct EditImportantDateSheet: View {
                 }
             }
         }
-        .tint(.accent)
+        .tint(Color.luckyBlue)
         .presentationDetents([.medium])
     }
 }

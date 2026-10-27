@@ -27,7 +27,7 @@ struct ResetCodeView: View {
                 title: "Reset Password",
                 description: "A 6-digit code was sent to \(email)"
             ) {
-                HStack(spacing: 12) {
+                HStack(spacing: Spacing.s) {
                     ForEach(0..<6) { index in
                         CodeDigitBox(
                             digit: digit(at: index),
@@ -35,15 +35,14 @@ struct ResetCodeView: View {
                         )
                     }
                 }
-                .padding(.vertical, 40)
+                .padding(.vertical, Spacing.l)
                 .onTapGesture { isFocused = true }
 
                 if let error = errorMessage {
                     Text(error)
-                        .font(.footnote)
-                        .foregroundColor(.red)
+                        .font(.luckySubheadline)
+                        .foregroundStyle(Color.destructiveRed)
                         .multilineTextAlignment(.center)
-                        .padding(.bottom, 8)
                 }
 
                 if timerExpired {
@@ -61,13 +60,12 @@ struct ResetCodeView: View {
                             }
                         }
                     }
-                    .font(.footnote)
-                    .foregroundColor(.accent)
-                    .fontWeight(.semibold)
+                    .font(.luckySubheadlineStrong)
+                    .foregroundStyle(Color.luckyBlue)
                 } else {
-                    Text("Code valid for \(formattedTime)")
-                        .font(.footnote)
-                        .foregroundColor(.gray)
+                    (Text("Code valid for ").foregroundColor(Color.inkSecondary)
+                     + Text(formattedTime).foregroundColor(Color.luckyBlue))
+                        .font(.luckySubheadline)
                         .contentTransition(.numericText())
                 }
 
@@ -78,6 +76,7 @@ struct ResetCodeView: View {
                     .frame(height: 0)
             }
         }
+        .luckyBackButton()
         .onAppear { isFocused = true }
         .onChange(of: code) { _, newValue in
             if newValue.count > 6 {

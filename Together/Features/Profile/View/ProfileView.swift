@@ -29,13 +29,14 @@ struct ProfileView: View {
                             showSettings = true
                         } label: {
                             Image(systemName: "gearshape")
-                                .font(.system(size: 24, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(width: 40, height: 40)
-                                .background(Circle().fill(.thinMaterial))
+                                .font(.system(size: 22, weight: .regular))
+                                .foregroundStyle(Color.charcoal)
+                                .frame(width: 48, height: 48)
+                                .luckyOutline(Circle(), shadowOffset: 0)
                         }
+                        .accessibilityLabel("Settings")
                     }
-                    .padding(.bottom, -18)
+                    .padding(.bottom, -36)
 
                     VStack(spacing: 12) {
                         ProfileAvatarsCard(
@@ -53,8 +54,8 @@ struct ProfileView: View {
                         )
 
                         Text(viewModel.displayName)
-                            .font(.custom("IvyJournal-Bold", size: 35))
-                            .foregroundColor(.white)
+                            .font(.luckyTitle)
+                            .foregroundStyle(Color.charcoal)
                     }
 
                     TogetherForCard(anniversary: anniversary) {
@@ -74,7 +75,9 @@ struct ProfileView: View {
                     Spacer(minLength: 40)
                 }
                 .padding(.horizontal, 20)
+                .padding(.top, 8)
             }
+            .scrollIndicators(.hidden)
         }
         .task {
             await viewModel.load()

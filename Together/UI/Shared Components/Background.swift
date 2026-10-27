@@ -15,14 +15,19 @@ struct Background<Content: View>: View {
     }
     
     var body: some View {
-        ZStack {
-            Image("background")
-                .resizable()
+        content
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background {
+                // In .background so the artwork never affects the layout size of the screen.
+                ZStack {
+                    Image("LuckyBackground")
+                        .resizable()
+                        .scaledToFill()
+                        .accessibilityHidden(true)
+                }
+                .clipped()
                 .ignoresSafeArea()
-                .opacity(0.8)
-            
-            content
-        }
+            }
     }
 }
 

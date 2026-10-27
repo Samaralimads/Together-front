@@ -67,6 +67,10 @@ struct InputField: View {
         self.passwordRequirements = nil
     }
 
+    private var promptText: Text {
+        Text(placeholder).foregroundStyle(Color.placeholderGrey)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
 
@@ -85,21 +89,23 @@ struct InputField: View {
                         displayedComponents: .date
                     )
                     .datePickerStyle(.compact)
-                    .fieldStyle(isFocused: true)
+                    .tint(Color.luckyBlue)
+                    .font(.luckyBodyStrong)
+                    .fieldStyle(isFocused: false)
 
                 case .password:
                     Group {
                         if showPassword {
-                            TextField(placeholder, text: $text)
+                            TextField("", text: $text, prompt: promptText)
                         } else {
-                            SecureField(placeholder, text: $text)
+                            SecureField("", text: $text, prompt: promptText)
                         }
                     }
                     .fieldStyle(isFocused: isFocused)
                     .focused($isFocused)
 
                 case .name, .email:
-                    TextField(placeholder, text: $text)
+                    TextField("", text: $text, prompt: promptText)
                         .fieldStyle(isFocused: isFocused)
                         .textContentType(type == .email ? .emailAddress : .name)
                         .keyboardType(type == .email ? .emailAddress : .default)
@@ -112,15 +118,15 @@ struct InputField: View {
                     Button {
                         showPassword.toggle()
                     } label: {
-                        Image(systemName: showPassword ? "eye.fill" : "eye.slash.fill")
-                            .contentTransition(.symbolEffect(.replace))
-                            .foregroundStyle(Color.accentColor)
-                            .padding(.trailing, 12)
+                        Text(showPassword ? "Hide" : "Show")
+                            .font(.luckySubheadlineStrong)
+                            .foregroundStyle(Color.luckyBlue)
+                            .padding(.trailing, 20)
                     }
                 } else if (type == .name || type == .email), !text.isEmpty {
                     Image(systemName: "checkmark")
-                        .foregroundStyle(isValid ? Color.accentColor : Color.clear)
-                        .padding(.trailing, 12)
+                        .foregroundStyle(isValid ? Color.luckyBlue : Color.clear)
+                        .padding(.trailing, 20)
                         .symbolEffect(.bounce, value: isValid)
                 }
             }
@@ -131,8 +137,8 @@ struct InputField: View {
                let requirements = passwordRequirements {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Must contain at least:")
-                        .font(.system(size: 14))
-                        .foregroundStyle(.primary.opacity(0.7))
+                        .font(.luckySubheadline)
+                        .foregroundStyle(Color.charcoal)
 
                     PasswordRequirementRow(
                         text: "At least 1 uppercase",
@@ -149,7 +155,7 @@ struct InputField: View {
                         isMet: requirements.hasMinLength
                     )
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, Spacing.s)
             }
         }
         .onChange(of: text) {
@@ -183,14 +189,15 @@ struct PasswordRequirementRow: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(isMet ? Color.green : Color.gray.opacity(0.4))
-                .font(.system(size: 16))
+            Image(systemName: isMet ? "checkmark.circle" : "circle")
+                .foregroundStyle(Color.luckyBlue)
+                .font(.system(size: 15, weight: .bold))
+                .frame(width: 16)
                 .symbolEffect(.bounce, value: isMet)
 
             Text(text)
-                .font(.system(size: 14))
-                .foregroundStyle(.primary.opacity(0.8))
+                .font(.luckySubheadline)
+                .foregroundStyle(Color.inkSecondary)
         }
     }
 }
@@ -200,14 +207,16 @@ struct PasswordRequirementRow: View {
 extension View {
     func fieldStyle(isFocused: Bool) -> some View {
         self
-            .frame(height: 60)
-            .padding(.horizontal, 16)
-            .font(.system(size: 16))
+            .font(.luckyBody)
+            .foregroundStyle(Color.charcoal)
+            .frame(height: 50)
+            .padding(.horizontal, 20)
+            .background(Capsule().fill(Color.cardFill))
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(
-                        isFocused ? Color.accentColor : Color.gray.opacity(0.3),
-                        lineWidth: 1.5
+                Capsule()
+                    .strokeBorder(
+                        isFocused ? Color.luckyBlue : Color.fieldBorder,
+                        lineWidth: Outline.field
                     )
             )
     }

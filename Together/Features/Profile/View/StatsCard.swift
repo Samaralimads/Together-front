@@ -13,7 +13,7 @@ struct StatsCard: View {
         VStack(spacing: 20) {
             HStack {
                 Text("Stats")
-                    .font(.custom("IvyJournal-Bold", size: 24))
+                    .font(.custom("Gaegu-Bold", size: 24))
 
                 Spacer()
 
@@ -29,7 +29,7 @@ struct StatsCard: View {
 
                         Image(systemName: "chevron.down")
                             .font(.caption)
-                            .foregroundColor(.accent)
+                            .foregroundStyle(Color.luckyBlue)
                     }
                 }
             }
@@ -54,7 +54,7 @@ struct StatsCard: View {
                     VStack(spacing: 15) {
                         PlannedByRow(
                             name: viewModel.myName,
-                            color: .lilas,
+                            color: .luckyBlue,
                             completed: viewModel.plannedByMe,
                             total: max(viewModel.totalCompleted, 1)
                         )
@@ -62,7 +62,7 @@ struct StatsCard: View {
                         if viewModel.isPaired {
                             PlannedByRow(
                                 name: viewModel.partnerName,
-                                color: .verde,
+                                color: .avatarPink,
                                 completed: viewModel.plannedByPartner,
                                 total: max(viewModel.totalCompleted, 1)
                             )
@@ -88,7 +88,7 @@ struct StatsCard: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 24)
-                .fill(.branco)
+                .fill(Color.cardFill)
         )
         .task { await viewModel.load() }
     }
@@ -100,7 +100,7 @@ struct DatesCompletedRow: View {
     var body: some View {
         VStack(spacing: 8) {
             Text("\(totalDates)")
-                .font(.custom("IvyJournal-Bold", size: 40))
+                .font(.custom("Gaegu-Bold", size: 40))
             
             Text("Dates Completed")
                 .font(.body)
@@ -166,7 +166,7 @@ struct WhereRow : View {
         HStack(spacing: 40) {
              VStack(spacing: 8) {
                  Text("\(indoors)")
-                     .font(.custom("IvyJournal-Bold", size: 30))
+                     .font(.custom("Gaegu-Bold", size: 30))
                  
                  Text("Indoors")
                      .font(.subheadline)
@@ -175,7 +175,7 @@ struct WhereRow : View {
              
              VStack(spacing: 8) {
                  Text("\(outdoors)")
-                     .font(.custom("IvyJournal-Bold", size: 30))
+                     .font(.custom("Gaegu-Bold", size: 30))
                  
                  Text("Outdoors")
                      .font(.subheadline)

@@ -8,72 +8,63 @@
 import SwiftUI
 
 struct WelcomeView: View {
-    @State private var logoOpacity = 0.0
-    
+    @State private var illustrationOpacity = 0.0
+
     var body: some View {
-        
-        Background{
-            
+
+        Background {
+
             VStack {
-                
-                Text("Welcome to")
-                    .font(.custom("IvyJournal-LightItalic", size: 36))
-                    .kerning(4)
-                    .foregroundColor(.preto)
-                
-                Text("Together")
-                    .font(.custom("IvyJournal-SemiBoldItalic", size: 64))
-                    .foregroundColor(.preto)
-                
+
+                VStack(spacing: Spacing.xs) {
+                    Text("Welcome to")
+                        .font(.luckyHandwritten)
+                        .kerning(2)
+                        .foregroundStyle(Color.charcoal)
+
+                    Text("Together")
+                        .font(.luckyHeroTitle)
+                        .foregroundStyle(Color.luckyBlue)
+                }
+                .padding(.top, 60)
+
                 Spacer()
-                
-                Image("logo")
+
+                Image("WelcomeStars")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 270, height: 300)
-                    .opacity(logoOpacity)
+                    .frame(maxWidth: 300)
+                    .opacity(illustrationOpacity)
                     .onAppear {
-                        withAnimation(.easeIn(duration: 3)) {
-                            logoOpacity = 0.9
+                        withAnimation(.easeIn(duration: 1.2)) {
+                            illustrationOpacity = 1
                         }
                     }
-                
+                    .accessibilityHidden(true)
+
                 Spacer()
-                
-                VStack(spacing: 16) {
-                    
+
+                VStack(spacing: Spacing.m) {
+
                     NavigationLink(
                         destination:
                             SignUpView().navigationBarBackButtonHidden(true))
                     {
                         Text("Create Account")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(.preto)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(Color.branco)
-                            .cornerRadius(50
-                            )
                     }
-                    
+                    .buttonStyle(.luckyPrimary)
+
                     NavigationLink(destination:
                                     SignInView().navigationBarBackButtonHidden(true))
                     {
                         Text("Log in")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(.branco)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 50)
-                                    .stroke(Color.branco, lineWidth: 1.5)
-                            )
                     }
+                    .buttonStyle(.luckySecondary)
                 }
-                
+
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 40)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 90)
         }
     }
 }

@@ -17,15 +17,15 @@ struct EmptyNextDateCard: View {
                     .font(.system(.caption2, weight: .bold))
                     .kerning(0.5)
             }
-            .foregroundStyle(Color.branco)
+            .foregroundStyle(Color.cardFill)
             .padding(.horizontal)
             .padding(.vertical, 6)
-            .background(Color.laranja.opacity(0.9))
+            .background(Color.luckyBlue.opacity(0.9))
             .clipShape(Capsule())
 
                 Text("No date planned yet")
-                    .font(.custom("IvyJournal-Bold", size: 22, relativeTo: .title2))
-                    .foregroundStyle(Color.preto)
+                    .font(.custom("Gaegu-Bold", size: 22, relativeTo: .title2))
+                    .foregroundStyle(Color.charcoal)
 
             Text("Let's find something fun to do!")
                 .font(.subheadline)
@@ -34,16 +34,16 @@ struct EmptyNextDateCard: View {
             NavigationLink(destination: ActivityView()) {
                 Text("Find an activity →")
                     .font(.system(.subheadline, weight: .semibold))
-                    .foregroundStyle(Color.branco)
+                    .foregroundStyle(Color.cardFill)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 12)
-                    .background(Color.laranja.opacity(0.9))
+                    .background(Color.luckyBlue.opacity(0.9))
                     .clipShape(.rect(cornerRadius: 20))
             }
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 24).fill(.branco))
+        .luckyCard()
     }
 }
 

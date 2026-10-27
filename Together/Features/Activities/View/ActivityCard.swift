@@ -10,40 +10,58 @@ import SwiftUI
 struct ActivityCard: View {
     let activity: Activity
 
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(activity.title)
-                    .font(.headline)
-                    .foregroundStyle(Color.preto)
+    private static let imageSize: CGFloat = 80
 
-                Text(activity.description)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+    var body: some View {
+        textBlock(reservesSpace: true)
+            .hidden()
+            .accessibilityHidden(true)
+            .overlay(alignment: .leading) {
+                textBlock(reservesSpace: false)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            // Centered on the whole card, not just the text block.
+            .overlay(alignment: .trailing) {
+                Image(activity.category.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: Self.imageSize, height: Self.imageSize)
+                    .padding(.trailing, 20)
+                    .accessibilityHidden(true)
+            }
+            .luckyCard()
+            .padding(.trailing, Outline.shadowOffset)
+    }
+
+    private func textBlock(reservesSpace: Bool) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.s) {
+            VStack(alignment: .leading, spacing: Spacing.s) {
+                Text(activity.title)
+                    .font(.luckyHeadline)
+                    .foregroundStyle(Color.charcoal)
+                    .lineLimit(2, reservesSpace: reservesSpace)
                     .multilineTextAlignment(.leading)
 
-                InfoTags(activity: activity)
+                Text(activity.description)
+                    .font(.luckySubheadline)
+                    .foregroundStyle(Color.inkSecondary)
+                    .lineLimit(2, reservesSpace: reservesSpace)
+                    .multilineTextAlignment(.leading)
             }
+            // Keeps the text clear of the illustration, which is overlaid on the card.
+            .padding(.trailing, Self.imageSize + Spacing.m)
 
-            Spacer()
-
-            Image(activity.category.imageName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 80, height: 80)
+            InfoTags(activity: activity)
         }
-        .padding()
-        .background(.white)
-        .clipShape(.rect(cornerRadius: 20))
-        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 5)
     }
 }
 
 #Preview {
     let activity = Activity(
         id: UUID(),
-        title: "Brunch at a Local Café",
+        title: "Brunch at a Local Cofee Shop",
         description: "Enjoy a slow Sunday morning with pastries and coffee.",
         budget: "€€",
         duration: 120,

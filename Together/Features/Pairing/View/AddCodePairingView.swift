@@ -18,7 +18,7 @@ struct AddCodePairingView: View {
         Background {
             WhiteCard(title: "Have a pairing code?", description: "If your partner invited you to join them, enter their unique 6 character pairing code below.") {
 
-                HStack(spacing: 10) {
+                HStack(spacing: Spacing.s) {
                     ForEach(0..<6) { index in
                         CodeDigitBox(
                             digit: digit(at: index),
@@ -26,7 +26,7 @@ struct AddCodePairingView: View {
                         )
                     }
                 }
-                .padding(.vertical, 40)
+                .padding(.vertical, Spacing.l)
 
                 TextField("", text: $code)
                     .keyboardType(.numberPad)
@@ -36,26 +36,24 @@ struct AddCodePairingView: View {
 
                 if let error = errorMessage {
                     Text(error)
-                        .font(.footnote)
-                        .foregroundStyle(.red)
+                        .font(.luckySubheadline)
+                        .foregroundStyle(Color.destructiveRed)
                         .multilineTextAlignment(.center)
-                        .padding(.bottom, 8)
                 }
 
                 Button(isLoading ? "Confirming..." : "Confirm", action: confirmCode)
-                    .modifier(AccentButtonModifier())
+                    .buttonStyle(.luckyPrimary)
                     .disabled(code.count < 6 || isLoading)
-                    .opacity(code.count < 6 ? 0.6 : 1)
 
                 NavigationLink("I'm the first one here") {
                     ShareCodePairingView()
                 }
-                .font(.footnote)
-                .foregroundStyle(Color.accent)
-                .fontWeight(.semibold)
-                .padding(.top, 30)
+                .font(.luckySubheadlineStrong)
+                .foregroundStyle(Color.luckyBlue)
+                .underline()
             }
         }
+        .toolbar(.hidden, for: .navigationBar)
         .task {
             // Small delay so the keyboard appears after the transition settles
             try? await Task.sleep(for: .seconds(0.5))

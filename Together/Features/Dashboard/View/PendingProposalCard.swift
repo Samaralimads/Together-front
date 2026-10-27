@@ -27,61 +27,61 @@ struct PendingProposalCard: View {
                     .font(.system(.caption2, weight: .bold))
                     .kerning(0.5)
             }
-            .foregroundStyle(Color.branco)
+            .foregroundStyle(Color.cardFill)
             .padding(.horizontal)
             .padding(.vertical, 6)
-            .background(Color.lilas.opacity(0.9))
+            .background(Color.luckyBlue.opacity(0.9))
             .clipShape(Capsule())
 
             Text(title)
-                .font(.custom("IvyJournal-Italic", size: 26, relativeTo: .title))
-                .foregroundStyle(Color.preto)
+                .font(.custom("Gaegu-Bold", size: 26, relativeTo: .title))
+                .foregroundStyle(Color.charcoal)
 
             HStack(spacing: 14) {
                 Label(date.formatted(.dateTime.month(.abbreviated).day()), systemImage: "calendar")
                 Label(date.formatted(.dateTime.hour().minute()), systemImage: "clock")
             }
             .font(.subheadline)
-            .foregroundStyle(Color.preto.opacity(0.75))
+            .foregroundStyle(Color.charcoal.opacity(0.75))
 
             if let note {
                 Text("\(note)")
                     .font(.footnote)
                     .italic()
-                    .foregroundStyle(Color.preto.opacity(0.6))
+                    .foregroundStyle(Color.charcoal.opacity(0.6))
                     .padding(.top, 2)
             }
 
             HStack(spacing: 10) {
                 Button("Accept", action: onAccept)
                     .font(.system(.subheadline, weight: .semibold))
-                    .foregroundStyle(Color.branco)
+                    .foregroundStyle(Color.cardFill)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(Color.lilas.opacity(0.9))
+                    .background(Color.luckyBlue.opacity(0.9))
                     .clipShape(.rect(cornerRadius: 30))
 
                 Button("Decline", action: onRefuse)
                     .font(.subheadline)
-                    .foregroundStyle(Color.preto)
+                    .foregroundStyle(Color.charcoal)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                     .background(Color(.systemGray6))
                     .clipShape(.rect(cornerRadius: 30))
-                    .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color.preto.opacity(0.15), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color.charcoal.opacity(0.15), lineWidth: 1))
 
                 Button("Reschedule", action: onReschedule)
                     .font(.subheadline)
-                    .foregroundStyle(Color.preto)
+                    .foregroundStyle(Color.charcoal)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                     .background(Color(.systemGray6))
                     .clipShape(.rect(cornerRadius: 30))
-                    .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color.preto.opacity(0.15), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color.charcoal.opacity(0.15), lineWidth: 1))
             }
         }
         .padding(20)
-        .background(RoundedRectangle(cornerRadius: 24).fill(.branco))
+        .luckyCard()
     }
 }
 

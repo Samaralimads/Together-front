@@ -22,15 +22,15 @@ struct SentProposalCard: View {
                         .font(.system(.caption2, weight: .bold))
                         .kerning(0.5)
                 }
-                .foregroundStyle(Color.branco)
+                .foregroundStyle(Color.cardFill)
                 .padding(.horizontal)
                 .padding(.vertical, 6)
-                .background(Color.lilas.opacity(0.9))
+                .background(Color.luckyBlue.opacity(0.9))
                 .clipShape(Capsule())
 
                 Text(title)
-                    .font(.custom("IvyJournal-Bold", size: 18, relativeTo: .headline))
-                    .foregroundStyle(Color.preto)
+                    .font(.custom("Gaegu-Bold", size: 18, relativeTo: .headline))
+                    .foregroundStyle(Color.charcoal)
 
                 HStack(spacing: 10) {
                     Label(date.formatted(.dateTime.month(.abbreviated).day()), systemImage: "calendar")
@@ -44,10 +44,10 @@ struct SentProposalCard: View {
 
             Image(systemName: "clock")
                 .font(.body)
-                .foregroundStyle(Color.preto.opacity(0.4))
+                .foregroundStyle(Color.charcoal.opacity(0.4))
         }
         .padding(16)
-        .background(RoundedRectangle(cornerRadius: 24).fill(.branco))
+        .luckyCard()
     }
 }
 

@@ -32,12 +32,14 @@ struct FiltersView: View {
     var body: some View {
         NavigationStack{
         ZStack{
-            Color(.white)
+            Color.cardFill
                 .edgesIgnoringSafeArea(.all)
 
             VStack(spacing: 0) {
 
-                Divider()
+                Rectangle()
+                    .fill(Color.rowDivider)
+                    .frame(height: 1)
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
@@ -45,30 +47,27 @@ struct FiltersView: View {
                         FilterSection(
                             title: "Price Range",
                             options: priceOptions,
-                            selected: filterState.priceRange,
-                            color: Color(.verde)
+                            selected: filterState.priceRange
                         ) { option in
                             select(&filterState.priceRange, option)
                         }
 
-                        Divider().padding(.horizontal, 20)
+                        Rectangle().fill(Color.rowDivider).frame(height: 1).padding(.horizontal, 20)
 
                         FilterSection(
                             title: "Approximate Duration",
                             options: durationOptions,
-                            selected: filterState.duration,
-                            color: Color(.rosa)
+                            selected: filterState.duration
                         ) { option in
                             select(&filterState.duration, option)
                         }
 
-                        Divider().padding(.horizontal, 20)
+                        Rectangle().fill(Color.rowDivider).frame(height: 1).padding(.horizontal, 20)
 
                         FilterSection(
                             title: "Location",
                             options: locationOptions,
-                            selected: filterState.location,
-                            color: Color(.lilas)
+                            selected: filterState.location
                         ) { option in
                             select(&filterState.location, option)
                         }
@@ -77,20 +76,26 @@ struct FiltersView: View {
 
                 Spacer()
 
-                // Apply Button
-                Button("Apply filters"){
-                    dismiss()
+                HStack(spacing: Spacing.m) {
+                    Button("Clear All") {
+                        filterState = FilterState()
+                    }
+                    .buttonStyle(.luckySecondary)
+
+                    // Apply Button
+                    Button("Apply filters"){
+                        dismiss()
+                    }
+                    .buttonStyle(.luckyPrimary)
                 }
-                .modifier(AccentButtonModifier())
                 .padding(.horizontal, 20)
-                .padding(.bottom, 36)
+                .padding(.bottom, 24)
             }
             .toolbar{
                 ToolbarItem(placement: .topBarLeading){
                     Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .topBarTrailing){
-                    Button("Clear All") {filterState = FilterState()}
+                        .font(.luckyBodyStrong)
+                        .foregroundStyle(Color.luckyBlue)
                 }
             }
             .navigationTitle("Filters")
@@ -110,35 +115,35 @@ struct FiltersView: View {
         let title: String
         let options: [String]
         let selected: String?
-        let color: Color
         let onTap:(String) -> Void
 
         private let columns = [
-            GridItem(.flexible(),alignment: .leading),
-            GridItem(.flexible(),alignment: .leading),
-            GridItem(.flexible(),alignment: .leading),
+            GridItem(.adaptive(minimum: 90), spacing: 10, alignment: .leading)
         ]
         var body: some View {
             VStack(alignment: .leading, spacing: 16) {
                 Text(title)
-                    .font(.title3)
-                    .fontWeight(.semibold)
+                    .font(.luckyHeadline)
+                    .foregroundStyle(Color.charcoal)
 
-                LazyVGrid(columns: columns, spacing: 10) {
+                LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
                     ForEach(options, id: \.self) { option in
                         let isSelected = selected == option
                         Button {
                             onTap(option)
                         } label: {
                             Text(option)
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.branco)
+                                .font(.luckyCaptionStrong)
+                                .foregroundStyle(isSelected ? Color.cardFill : Color.charcoal)
                                 .padding(.horizontal, 16)
-                                .padding(.vertical, 10)
-                                .background(isSelected ? color : color.opacity(0.76))
-                                .clipShape(Capsule())
+                                .frame(height: 40)
+                                .luckyOutline(
+                                    Capsule(),
+                                    fill: isSelected ? Color.luckyBlueLight : Color.cardFill,
+                                    shadowOffset: isSelected ? 3 : 0
+                                )
                         }
+                        .buttonStyle(.plain)
                     }
                 }
             }
