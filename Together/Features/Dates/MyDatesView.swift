@@ -24,15 +24,11 @@ struct MyDatesView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
 
-                    VStack(alignment: .leading, spacing: 4) {
                         Text("Your Dates")
-                            .font(.custom("Gaegu-Bold", size: 30))
+                            .font(.luckyScreenTitle)
                             .foregroundStyle(Color.charcoal)
-
-                        Text("Keep track of your current, past or favorite activities.")
-                            .font(.luckySubheadline)
-                            .foregroundStyle(Color.cardFill)
-                    }
+                            .padding(.leading, Spacing.xs)
+                      
 
                     tabPicker
 
@@ -62,7 +58,8 @@ struct MyDatesView: View {
                     Spacer(minLength: 40)
                 }
                 .padding(.horizontal, 20)
-                .padding(.bottom, 40)
+                .padding(.top, 12)
+                .padding(.bottom, 24)
             }
         }
         .task { await loadAll() }

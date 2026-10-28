@@ -17,7 +17,7 @@ struct ActivityView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     Text("Discover")
                         .font(.luckyScreenTitle)
-                        .foregroundStyle(Color.luckyBlue)
+                        .foregroundStyle(Color.charcoal)
                         .padding(.leading, Spacing.xs)
 
                     searchBar
@@ -90,8 +90,11 @@ private extension ActivityView {
                     }
                 }
             }
-            .fullScreenCover(isPresented: $showFilters) {
+            .sheet(isPresented: $showFilters) {
                 FiltersView(filterState: $viewModel.filterState)
+                    .presentationDetents([.fraction(0.75)])
+                    .presentationDragIndicator(.visible)
+                    .presentationBackground(Color.cardFill)
                     .onDisappear {
                         Task { await viewModel.applyFilters() }
                     }

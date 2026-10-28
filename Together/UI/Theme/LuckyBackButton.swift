@@ -11,8 +11,27 @@ struct LuckyBackButton: View {
     var action: () -> Void
 
     var body: some View {
+        LuckyCircleButton(systemName: "chevron.left", label: "Back", action: action)
+    }
+}
+
+/// Round, outlined X for dismissing sheets.
+struct LuckyCloseButton: View {
+    var action: () -> Void
+
+    var body: some View {
+        LuckyCircleButton(systemName: "xmark", label: "Close", action: action)
+    }
+}
+
+struct LuckyCircleButton: View {
+    let systemName: String
+    let label: String
+    var action: () -> Void
+
+    var body: some View {
         Button(action: action) {
-            Image(systemName: "chevron.left")
+            Image(systemName: systemName)
                 .font(.system(size: 17, weight: .bold))
                 .foregroundStyle(Color.charcoal)
                 .frame(width: 44, height: 44)
@@ -25,7 +44,7 @@ struct LuckyBackButton: View {
                 }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Back")
+        .accessibilityLabel(label)
     }
 }
 

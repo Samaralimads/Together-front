@@ -20,7 +20,7 @@ struct ActivityCard: View {
                 textBlock(reservesSpace: false)
             }
             .padding(.horizontal, 20)
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .frame(maxWidth: .infinity, alignment: .leading)
             // Centered on the whole card, not just the text block.
             .overlay(alignment: .trailing) {

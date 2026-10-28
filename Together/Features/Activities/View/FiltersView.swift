@@ -30,12 +30,12 @@ struct FiltersView: View {
     private let locationOptions = ["INDOORS", "OUTDOORS"]
 
     var body: some View {
-        NavigationStack{
-        ZStack{
+        ZStack {
             Color.cardFill
                 .edgesIgnoringSafeArea(.all)
 
             VStack(spacing: 0) {
+                header
 
                 Rectangle()
                     .fill(Color.rowDivider)
@@ -43,47 +43,48 @@ struct FiltersView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-
                         FilterSection(
-                            title: "Price Range",
+                            title: "Price",
                             options: priceOptions,
                             selected: filterState.priceRange
                         ) { option in
                             select(&filterState.priceRange, option)
                         }
 
-                        Rectangle().fill(Color.rowDivider).frame(height: 1).padding(.horizontal, 20)
+                        divider
 
                         FilterSection(
-                            title: "Approximate Duration",
+                            title: "Duration",
                             options: durationOptions,
                             selected: filterState.duration
                         ) { option in
                             select(&filterState.duration, option)
                         }
 
-                        Rectangle().fill(Color.rowDivider).frame(height: 1).padding(.horizontal, 20)
+                        divider
 
                         FilterSection(
-                            title: "Location",
+                            title: "Setting",
                             options: locationOptions,
                             selected: filterState.location
                         ) { option in
                             select(&filterState.location, option)
                         }
+
+                        divider
                     }
                 }
 
                 Spacer()
 
                 HStack(spacing: Spacing.m) {
-                    Button("Clear All") {
+                    Button("Clear all") {
                         filterState = FilterState()
                     }
                     .buttonStyle(.luckySecondary)
+                    .containerRelativeFrame(.horizontal) { width, _ in width * 0.34 }
 
-                    // Apply Button
-                    Button("Apply filters"){
+                    Button("Apply filters") {
                         dismiss()
                     }
                     .buttonStyle(.luckyPrimary)
@@ -91,66 +92,123 @@ struct FiltersView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 24)
             }
-            .toolbar{
-                ToolbarItem(placement: .topBarLeading){
-                    Button("Cancel") { dismiss() }
-                        .font(.luckyBodyStrong)
-                        .foregroundStyle(Color.luckyBlue)
-                }
-            }
-            .navigationTitle("Filters")
-            .navigationBarTitleDisplayMode(.inline)
-
         }
     }
-}
+
+    private var header: some View {
+        ZStack {
+            Text("Filters")
+                .font(.luckyScreenTitle)
+                .foregroundStyle(Color.charcoal)
+
+            HStack {
+                Spacer()
+                LuckyCloseButton { dismiss() }
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 24)
+        .padding(.bottom, 14)
+    }
+
+    private var divider: some View {
+        Rectangle().fill(Color.rowDivider).frame(height: 1).padding(.horizontal, 20)
+    }
 
     // Each section only supports a single active value server-side, so
     // tapping a chip either selects it or, if already selected, clears it.
-    private func select(_ current: inout String?, _ value: String) {
+    // "ANY" passes nil, which clears the section.
+    private func select(_ current: inout String?, _ value: String?) {
         current = (current == value) ? nil : value
     }
+}
 
-    struct FilterSection: View{
-        let title: String
-        let options: [String]
-        let selected: String?
-        let onTap:(String) -> Void
+// MARK: - FilterSection
 
-        private let columns = [
-            GridItem(.adaptive(minimum: 90), spacing: 10, alignment: .leading)
-        ]
-        var body: some View {
-            VStack(alignment: .leading, spacing: 16) {
-                Text(title)
-                    .font(.luckyHeadline)
-                    .foregroundStyle(Color.charcoal)
+struct FilterSection: View {
+    let title: String
+    let options: [String]
+    let selected: String?
+    let onTap: (String?) -> Void
 
-                LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
-                    ForEach(options, id: \.self) { option in
-                        let isSelected = selected == option
-                        Button {
-                            onTap(option)
-                        } label: {
-                            Text(option)
-                                .font(.luckyCaptionStrong)
-                                .foregroundStyle(isSelected ? Color.cardFill : Color.charcoal)
-                                .padding(.horizontal, 16)
-                                .frame(height: 40)
-                                .luckyOutline(
-                                    Capsule(),
-                                    fill: isSelected ? Color.luckyBlueLight : Color.cardFill,
-                                    shadowOffset: isSelected ? 3 : 0
-                                )
-                        }
-                        .buttonStyle(.plain)
-                    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(title)
+                .font(.luckyHeadline)
+                .foregroundStyle(Color.charcoal)
+
+            FlowLayout(spacing: 10, lineSpacing: 12) {
+                FilterChip(title: "ANY", isSelected: selected == nil) { onTap(nil) }
+
+                ForEach(options, id: \.self) { option in
+                    FilterChip(title: option, isSelected: selected == option) { onTap(option) }
                 }
             }
-            .padding(20)
+        }
+        .padding(20)
+    }
+}
+
+private struct FilterChip: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.luckyCaptionStrong)
+                .foregroundStyle(isSelected ? Color.cardFill : Color.charcoal)
+                .padding(.horizontal, 16)
+                .frame(height: 40)
+                .luckyOutline(
+                    Capsule(),
+                    fill: isSelected ? Color.luckyBlueLight : Color.cardFill,
+                    lineWidth: Outline.field,
+                    shadowOffset: isSelected ? 3 : 0
+                )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+/// Wraps its children onto new lines, each chip keeping its natural width.
+private struct FlowLayout: Layout {
+    var spacing: CGFloat
+    var lineSpacing: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let layout = arrange(in: proposal.width ?? .infinity, subviews: subviews)
+        return CGSize(width: proposal.width ?? layout.width, height: layout.height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let layout = arrange(in: bounds.width, subviews: subviews)
+        for (index, origin) in layout.origins.enumerated() {
+            subviews[index].place(
+                at: CGPoint(x: bounds.minX + origin.x, y: bounds.minY + origin.y),
+                proposal: .unspecified
+            )
         }
     }
 
+    private func arrange(in maxWidth: CGFloat, subviews: Subviews) -> (origins: [CGPoint], width: CGFloat, height: CGFloat) {
+        var origins: [CGPoint] = []
+        var x: CGFloat = 0, y: CGFloat = 0, rowHeight: CGFloat = 0, width: CGFloat = 0
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x > 0, x + size.width > maxWidth {
+                x = 0
+                y += rowHeight + lineSpacing
+                rowHeight = 0
+            }
+            origins.append(CGPoint(x: x, y: y))
+            x += size.width + spacing
+            width = max(width, x - spacing)
+            rowHeight = max(rowHeight, size.height)
+        }
+        return (origins, width, y + rowHeight)
+    }
 }
 
 #Preview {

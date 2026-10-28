@@ -19,7 +19,7 @@ extension Font {
     static let luckyTitle = Font.custom("Gaegu-Bold", size: 34, relativeTo: .title)
 
     /// Navigation bar title ("Settings").
-    static let luckyScreenTitle = Font.custom("Gaegu-Bold", size: 30, relativeTo: .title2)
+    static let luckyScreenTitle = Font.custom("Gaegu-Bold", size: 32, relativeTo: .title2)
 
     /// Title inside a card ("Together for", an activity title).
     static let luckyHeadline = Font.custom("Gaegu-Bold", size: 26, relativeTo: .title3)

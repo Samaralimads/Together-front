@@ -26,11 +26,12 @@ struct ActivityDetailView: View {
                         VStack(alignment: .leading, spacing: Spacing.xs) {
                             Text(activity.categoryName)
                                 .font(.luckyBody)
-                                .foregroundStyle(Color.luckyBlue)
+                                .foregroundStyle(Color.charcoal.opacity(0.7))
+                                .kerning(1)
 
                             Text(activity.title)
                                 .font(.luckyTitle)
-                                .foregroundStyle(Color.luckyBlue)
+                                .foregroundStyle(Color.charcoal)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
 
@@ -51,6 +52,7 @@ struct ActivityDetailView: View {
                         Text(activity.description)
                             .font(.luckyBody)
                             .foregroundStyle(Color.charcoal)
+                            .padding(.vertical, 14)
 
                         Rectangle().fill(Color.rowDivider).frame(height: 1)
 
