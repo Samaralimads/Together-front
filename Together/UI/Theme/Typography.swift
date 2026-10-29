@@ -2,6 +2,8 @@
 //  Typography.swift
 //  Together
 //
+//  Created by Samara Lima da Silva on 25/10/2026.
+//
 //  Lucky Stars type scale: Gaegu for titles and buttons, Nunito for body text.
 //  Every style scales with Dynamic Type through `relativeTo`.
 //

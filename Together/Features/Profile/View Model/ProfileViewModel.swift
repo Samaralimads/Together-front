@@ -40,7 +40,7 @@ class ProfileViewModel {
 
         do {
             let dates = try await ProfileService.fetchImportantDates()
-            importantDates = dates.map { ImportantDate(id: $0.id, label: $0.label, date: parsedDate($0.date)) }
+            importantDates = dates.map { importantDate(from: $0) }
         } catch {
             importantDates = []
         }
@@ -83,11 +83,16 @@ class ProfileViewModel {
     }
 
     // MARK: - Add important date
-    func addImportantDate(label: String, date: Date) async {
+    func addImportantDate(label: String, date: Date, repeatsYearly: Bool, reminderDaysBefore: Int?) async {
         let formatter = dateFormatter()
         do {
-            let response = try await ProfileService.createImportantDate(label: label, date: formatter.string(from: date))
-            importantDates.append(ImportantDate(id: response.id, label: response.label, date: parsedDate(response.date)))
+            let response = try await ProfileService.createImportantDate(
+                label: label,
+                date: formatter.string(from: date),
+                repeatYearly: repeatsYearly,
+                reminderDaysBefore: reminderDaysBefore
+            )
+            importantDates.append(importantDate(from: response))
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -100,10 +105,12 @@ class ProfileViewModel {
             let response = try await ProfileService.updateImportantDate(
                 id: importantDate.id,
                 label: importantDate.label,
-                date: formatter.string(from: importantDate.date)
+                date: formatter.string(from: importantDate.date),
+                repeatYearly: importantDate.repeatsYearly,
+                reminderDaysBefore: importantDate.reminderDaysBefore
             )
             if let index = importantDates.firstIndex(where: { $0.id == importantDate.id }) {
-                importantDates[index] = ImportantDate(id: response.id, label: response.label, date: parsedDate(response.date))
+                importantDates[index] = self.importantDate(from: response)
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -121,6 +128,16 @@ class ProfileViewModel {
     }
 
     // MARK: - Helpers
+    private func importantDate(from response: ProfileService.ImportantDateResponse) -> ImportantDate {
+        ImportantDate(
+            id: response.id,
+            label: response.label,
+            date: parsedDate(response.date),
+            repeatsYearly: response.repeatYearly ?? false,
+            reminderDaysBefore: (response.reminderEnabled ?? false) ? response.reminderDaysBefore : nil
+        )
+    }
+
     var anniversaryDate: Date {
         guard let dateString = couple?.relationshipStartDate else { return Date.now }
         return parsedDate(dateString)

@@ -2,6 +2,8 @@
 //  PlannedActivityTests.swift
 //  TogetherTests
 //
+//  Created by Samara Lima da Silva on 30/09/2026.
+//
 
 import XCTest
 @testable import Together

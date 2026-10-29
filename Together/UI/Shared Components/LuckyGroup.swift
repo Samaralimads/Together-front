@@ -2,6 +2,8 @@
 //  LuckyGroup.swift
 //  Together
 //
+//  Created by Samara Lima da Silva on 27/10/2026.
+//
 //  A Lucky Stars card holding rows separated by thin dividers, plus the
 //  standard settings row (title, subtitle, blue chevron).
 //

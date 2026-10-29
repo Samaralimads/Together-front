@@ -95,9 +95,7 @@ struct ActivityDetailView: View {
                         Button(action: toggleFavorite) {
                             HStack(spacing: Spacing.s) {
                                 Text(isFavorite ? "Saved to favorites" : "Save to favorites")
-                                Image(systemName: isFavorite ? "star.fill" : "star")
-                                    .foregroundStyle(Color.starYellow)
-                                    .contentTransition(.symbolEffect(.replace.downUp.byLayer, options: .nonRepeating))
+                                FavoriteStar(isFilled: isFavorite)
                             }
                         }
                         .buttonStyle(.luckySecondary)

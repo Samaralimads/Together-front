@@ -44,9 +44,9 @@ struct TogetherForCard: View {
             }
 
             HStack(spacing: Spacing.s) {
-                TimeUnitView(value: String(format: "%02d", timeComponents.years), label: "Years")
-                TimeUnitView(value: String(format: "%02d", timeComponents.months), label: "Months")
-                TimeUnitView(value: String(format: "%02d", timeComponents.days), label: "Days")
+                TimeUnitView(value: String(format: "%02d", timeComponents.years), label: timeComponents.years == 1 ? "Year" : "Years")
+                TimeUnitView(value: String(format: "%02d", timeComponents.months), label: timeComponents.months == 1 ? "Month" : "Months")
+                TimeUnitView(value: String(format: "%02d", timeComponents.days), label: timeComponents.days == 1 ? "Day" : "Days")
             }
         }
         .padding(20)

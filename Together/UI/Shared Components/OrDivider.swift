@@ -2,6 +2,8 @@
 //  OrDivider.swift
 //  Together
 //
+//  Created by Samara Lima da Silva on 25/10/2026.
+//
 //  A thin line, "or", a thin line.
 //
 

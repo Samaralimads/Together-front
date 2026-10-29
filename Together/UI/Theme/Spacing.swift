@@ -2,6 +2,8 @@
 //  Spacing.swift
 //  Together
 //
+//  Created by Samara Lima da Silva on 25/10/2026.
+//
 //  Spacing, radius and outline tokens shared by every screen.
 //
 
@@ -28,6 +30,13 @@ enum Outline {
     static let thick: CGFloat = 2
     /// Grey outline of fields and code boxes.
     static let field: CGFloat = 1.5
-    /// Offset of the hard charcoal shadow behind cards and buttons.
-    static let shadowOffset: CGFloat = 5
+    /// Largest offset of the hard charcoal shadow (wide, tall cards). Also the space reserved for it.
+    static let shadowOffset: CGFloat = 4
+    /// Offset for small or short elements (pills, buttons, chips, round buttons).
+    static let shadowMin: CGFloat = 2
+
+    /// The shadow grows with the element, as in the Figma: roughly its shorter side / 40, between the min and max.
+    static func shadow(for size: CGSize) -> CGFloat {
+        min(max(min(size.width, size.height) / 40, shadowMin), shadowOffset)
+    }
 }

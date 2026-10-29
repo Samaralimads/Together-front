@@ -2,6 +2,8 @@
 //  AppleSignInButton.swift
 //  Together
 //
+//  Created by Samara Lima da Silva on 25/10/2026.
+//
 //  Placeholder "Sign in / Sign up with Apple" button. No logic yet.
 //
 

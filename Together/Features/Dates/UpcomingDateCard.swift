@@ -11,25 +11,21 @@ struct UpcomingDateCard: View {
     let planned: PlannedActivity
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.s) {
             Text(planned.activityTitle)
-                .font(.custom("Gaegu-Bold", size: 20))
+                .font(.luckyHeadline)
                 .foregroundStyle(Color.charcoal)
+                .multilineTextAlignment(.leading)
 
             if let date = planned.parsedDate {
-                HStack(spacing: 8) {
-                    Label(date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()), systemImage: "calendar")
-                    Label(date.formatted(.dateTime.hour().minute()), systemImage: "clock")
-                }
-                .font(.luckyCaption)
-                .foregroundStyle(.secondary)
+                DateAndTimePills(date: date)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(Color.cardFill)
-        .clipShape(.rect(cornerRadius: 20))
-        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 5)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 18)
+        .luckyCard()
+        .padding(.trailing, Outline.shadowOffset)
     }
 }
 

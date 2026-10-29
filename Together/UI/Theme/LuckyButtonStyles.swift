@@ -2,21 +2,25 @@
 //  LuckyButtonStyles.swift
 //  Together
 //
+//  Created by Samara Lima da Silva on 27/10/2026.
+//
 //  Primary, secondary and destructive button styles.
 //
 
 import SwiftUI
 
-/// Solid charcoal pill with cream-white text.
+/// Solid charcoal pill with cream-white text. `compact` hugs its text instead of filling the width.
 struct LuckyPrimaryButtonStyle: ButtonStyle {
+    var compact = false
     @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.luckyButton)
+            .font(compact ? .luckyLabel : .luckyButton)
             .foregroundStyle(Color.cardFill)
-            .frame(maxWidth: .infinity)
-            .frame(height: 48)
+            .padding(.horizontal, compact ? 20 : 0)
+            .frame(maxWidth: compact ? nil : .infinity)
+            .frame(height: compact ? 40 : 48)
             .background(Capsule().fill(Color.charcoal))
             .opacity(isEnabled ? (configuration.isPressed ? 0.85 : 1) : 0.7)
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
@@ -24,16 +28,18 @@ struct LuckyPrimaryButtonStyle: ButtonStyle {
     }
 }
 
-/// Cream-white pill with a charcoal outline.
+/// Cream-white pill with a charcoal outline. `compact` hugs its text instead of filling the width.
 struct LuckySecondaryButtonStyle: ButtonStyle {
+    var compact = false
     @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.luckyButton)
+            .font(compact ? .luckyLabel : .luckyButton)
             .foregroundStyle(Color.charcoal)
-            .frame(maxWidth: .infinity)
-            .frame(height: 48)
+            .padding(.horizontal, compact ? 20 : 0)
+            .frame(maxWidth: compact ? nil : .infinity)
+            .frame(height: compact ? 40 : 48)
             .background(Capsule().fill(Color.cardFill))
             .overlay(Capsule().strokeBorder(Color.charcoal, lineWidth: Outline.thick))
             .opacity(isEnabled ? (configuration.isPressed ? 0.85 : 1) : 0.6)
@@ -60,10 +66,12 @@ struct LuckyDestructiveButtonStyle: ButtonStyle {
 
 extension ButtonStyle where Self == LuckyPrimaryButtonStyle {
     static var luckyPrimary: LuckyPrimaryButtonStyle { .init() }
+    static var luckyPrimaryCompact: LuckyPrimaryButtonStyle { .init(compact: true) }
 }
 
 extension ButtonStyle where Self == LuckySecondaryButtonStyle {
     static var luckySecondary: LuckySecondaryButtonStyle { .init() }
+    static var luckySecondaryCompact: LuckySecondaryButtonStyle { .init(compact: true) }
 }
 
 extension ButtonStyle where Self == LuckyDestructiveButtonStyle {

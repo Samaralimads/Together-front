@@ -2,6 +2,8 @@
 //  LuckyBackButton.swift
 //  Together
 //
+//  Created by Samara Lima da Silva on 27/10/2026.
+//
 //  Round, outlined back button with the hard offset shadow.
 //
 
@@ -37,7 +39,7 @@ struct LuckyCircleButton: View {
                 .frame(width: 44, height: 44)
                 .background {
                     ZStack {
-                        Circle().fill(Color.charcoal).offset(x: 3, y: 3)
+                        Circle().fill(Color.charcoal).offset(x: Outline.shadowMin, y: Outline.shadowMin)
                         Circle().fill(Color.cardFill)
                         Circle().strokeBorder(Color.charcoal, lineWidth: Outline.thick)
                     }

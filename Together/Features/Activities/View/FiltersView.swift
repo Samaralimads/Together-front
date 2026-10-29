@@ -26,7 +26,7 @@ struct FiltersView: View {
     @Environment(\.dismiss) private var dismiss
 
     private let priceOptions = ["LOW", "MEDIUM", "HIGH"]
-    private let durationOptions = ["< 2 HOURS", "< 5 HOURS", "1 DAY", "WEEKEND"]
+    private let durationOptions = ["< 2 HOURS", "< 5 HOURS", "< 8 HOURS"]
     private let locationOptions = ["INDOORS", "OUTDOORS"]
 
     var body: some View {
@@ -96,19 +96,7 @@ struct FiltersView: View {
     }
 
     private var header: some View {
-        ZStack {
-            Text("Filters")
-                .font(.luckyScreenTitle)
-                .foregroundStyle(Color.charcoal)
-
-            HStack {
-                Spacer()
-                LuckyCloseButton { dismiss() }
-            }
-        }
-        .padding(.horizontal, 20)
-        .padding(.top, 24)
-        .padding(.bottom, 14)
+        LuckySheetHeader(title: "Filters") { dismiss() }
     }
 
     private var divider: some View {
@@ -165,7 +153,7 @@ private struct FilterChip: View {
                     Capsule(),
                     fill: isSelected ? Color.luckyBlueLight : Color.cardFill,
                     lineWidth: Outline.field,
-                    shadowOffset: isSelected ? 3 : 0
+                    shadowOffset: isSelected ? nil : 0
                 )
         }
         .buttonStyle(.plain)

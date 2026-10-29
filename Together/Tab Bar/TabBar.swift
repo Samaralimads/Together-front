@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-private enum AppTab: CaseIterable {
+enum AppTab: CaseIterable {
     case dashboard, discover, myDates, profile
 
     var title: String {
@@ -26,6 +26,18 @@ private enum AppTab: CaseIterable {
         case .myDates: "heart"
         case .profile: "person"
         }
+    }
+}
+
+/// Lets a screen inside a tab (like the Dashboard shortcuts) switch to another tab.
+private struct SwitchTabKey: EnvironmentKey {
+    static let defaultValue: (AppTab) -> Void = { _ in }
+}
+
+extension EnvironmentValues {
+    var switchTab: (AppTab) -> Void {
+        get { self[SwitchTabKey.self] }
+        set { self[SwitchTabKey.self] = newValue }
     }
 }
 
@@ -55,6 +67,7 @@ struct TabBar: View {
                     .toolbarVisibility(.hidden, for: .tabBar)
             }
         }
+        .environment(\.switchTab, { selectedTab = $0 })
         // The system bar is hidden inside each tab; the Lucky Stars pill below replaces it.
         .safeAreaInset(edge: .bottom, spacing: 0) {
             LuckyTabBar(selection: $selectedTab)

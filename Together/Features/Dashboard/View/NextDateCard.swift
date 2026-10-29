@@ -14,69 +14,51 @@ struct NextDateCard: View {
 
     var body: some View {
         let date = planned.parsedDate ?? Date.now
-        let days = max(Calendar.current.dateComponents([.day], from: Date.now, to: date).day ?? 0, 0)
+        let calendar = Calendar.current
+        // Whole calendar days from today to the date, so a date 3 days away says 3.
+        let days = max(calendar.dateComponents([.day], from: calendar.startOfDay(for: .now), to: calendar.startOfDay(for: date)).day ?? 0, 0)
 
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 6) {
-                Image(systemName: "calendar")
-                    .font(.system(.caption2, weight: .bold))
-                Text("YOUR NEXT DATE")
-                    .font(.system(.caption2, weight: .bold))
-                    .kerning(0.5)
-            }
-            .foregroundStyle(Color.cardFill)
-            .padding(.horizontal)
-            .padding(.vertical, 6)
-            .background(Color.luckyBlue.opacity(0.9))
-            .clipShape(Capsule())
-
+        VStack(alignment: .leading, spacing: Spacing.m) {
             HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(planned.activityTitle)
-                        .font(.custom("Gaegu-Bold", size: 22, relativeTo: .title2))
-                        .foregroundStyle(Color.charcoal)
-
-                    HStack(spacing: 8) {
-                        Label(date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()), systemImage: "calendar")
-                        Label(date.formatted(.dateTime.hour().minute()), systemImage: "clock")
-                    }
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                }
+                Text(planned.activityTitle)
+                    .font(.luckyTitle)
+                    .foregroundStyle(Color.luckyBlue)
+                    .multilineTextAlignment(.leading)
 
                 Spacer()
 
                 VStack(spacing: 0) {
                     Text("\(days)")
-                        .font(.custom("Gaegu-Bold", size: 48, relativeTo: .largeTitle))
+                        .font(.luckyHeroTitle)
                         .foregroundStyle(Color.charcoal)
                     Text("DAYS TO GO")
-                        .font(.system(.caption2, weight: .semibold))
-                        .foregroundStyle(.secondary)
-                        .kerning(0.5)
+                        .font(.luckyCaptionStrong)
+                        .foregroundStyle(Color.inkSecondary)
                 }
             }
 
-            HStack(spacing: 10) {
-                Button(action: onAddToCalendar) {
-                    Image(systemName: "calendar.badge.plus")
-                        .font(.body)
-                        .foregroundStyle(Color.charcoal)
-                        .frame(width: 44, height: 44)
-                        .background(Color(.systemGray6))
-                        .clipShape(.rect(cornerRadius: 12))
-                }
+            HStack(spacing: Spacing.m) {
+                Label(date.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)), systemImage: "calendar")
+                Label(date.formatted(.dateTime.hour().minute()), systemImage: "clock")
+            }
+            .font(.luckySubheadline)
+            .foregroundStyle(Color.charcoal)
+
+            HStack(spacing: Spacing.s) {
+                Button("Add to calendar", action: onAddToCalendar)
+                    .buttonStyle(.luckySecondaryCompact)
 
                 Button("Details →", action: onDetails)
-                    .font(.system(.subheadline, weight: .semibold))
-                    .foregroundStyle(Color.cardFill)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .background(Color.luckyBlue.opacity(0.9))
-                    .clipShape(.rect(cornerRadius: 20))
+                    .buttonStyle(.luckyPrimaryCompact)
             }
         }
+        .background(alignment: .topTrailing) {
+            StarAccent()
+                .offset(x: -Spacing.s, y: -Spacing.s)
+        }
         .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .luckyCard()
+        .padding(.trailing, Outline.shadowOffset)
     }
 }

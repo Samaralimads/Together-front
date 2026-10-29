@@ -7,13 +7,24 @@
 import SwiftUI
 
 struct StatsCard: View {
-    @State private var viewModel = StatsViewModel()
+    @State private var viewModel: StatsViewModel
+
+    init(viewModel: StatsViewModel = StatsViewModel()) {
+        _viewModel = State(initialValue: viewModel)
+    }
 
     var body: some View {
-        VStack(spacing: 20) {
-            HStack {
-                Text("Stats")
-                    .font(.custom("Gaegu-Bold", size: 24))
+        VStack(alignment: .leading, spacing: Spacing.m) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("YOUR ADVENTURES")
+                        .font(.luckyCaptionStrong)
+                        .foregroundStyle(Color.luckyBlue)
+
+                    Text("Stats")
+                        .font(.luckyHeadline)
+                        .foregroundStyle(Color.charcoal)
+                }
 
                 Spacer()
 
@@ -22,15 +33,17 @@ struct StatsCard: View {
                     Button("This month") { }
                     Button("All time") { }
                 } label: {
-                    HStack(spacing: 5) {
+                    HStack(spacing: 4) {
                         Text("This year")
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
+                            .font(.luckySubheadlineStrong)
 
                         Image(systemName: "chevron.down")
-                            .font(.caption)
-                            .foregroundStyle(Color.luckyBlue)
+                            .font(.luckyCaptionStrong)
                     }
+                    .foregroundStyle(Color.luckyBlue)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Capsule().fill(Color.luckyBlueTint))
                 }
             }
 
@@ -39,157 +52,101 @@ struct StatsCard: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 30)
             } else {
-                DatesCompletedRow(
-                    totalDates: viewModel.totalCompleted
-                )
+                DatesCompletedRow(totalDates: viewModel.totalCompleted)
 
-                Divider()
+                Rectangle()
+                    .fill(Color.rowDivider)
+                    .frame(height: 1)
 
-                // Planned by section
-                VStack(spacing: 12) {
-                    Text("Planned by")
-                        .font(.body)
-                        .fontWeight(.medium)
+                VStack(alignment: .leading, spacing: Spacing.s) {
+                    Text("Planned with love by")
+                        .font(.luckyBodySemibold)
+                        .foregroundStyle(Color.charcoal)
 
-                    VStack(spacing: 15) {
-                        PlannedByRow(
-                            name: viewModel.myName,
-                            color: .luckyBlue,
-                            completed: viewModel.plannedByMe,
-                            total: max(viewModel.totalCompleted, 1)
-                        )
-
-                        if viewModel.isPaired {
-                            PlannedByRow(
-                                name: viewModel.partnerName,
-                                color: .avatarPink,
-                                completed: viewModel.plannedByPartner,
-                                total: max(viewModel.totalCompleted, 1)
-                            )
-                        }
-                    }
-                }
-
-                Divider()
-
-                // Where section
-                VStack(spacing: 12) {
-                    Text("Where")
-                        .font(.body)
-                        .fontWeight(.medium)
-
-                    WhereRow(
-                        indoors: viewModel.indoorCount,
-                        outdoors: viewModel.outdoorCount
+                    PlannedByRow(
+                        name: viewModel.myName,
+                        color: .luckyBlue,
+                        completed: viewModel.plannedByMe,
+                        total: viewModel.totalCompleted
                     )
+
+                    if viewModel.isPaired {
+                        PlannedByRow(
+                            name: viewModel.partnerName,
+                            color: .avatarPink,
+                            completed: viewModel.plannedByPartner,
+                            total: viewModel.totalCompleted
+                        )
+                    }
                 }
             }
         }
         .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(Color.cardFill)
-        )
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .luckyCard()
+        .padding(.trailing, Outline.shadowOffset)
         .task { await viewModel.load() }
     }
 }
 
 struct DatesCompletedRow: View {
     let totalDates: Int
-    
+
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 2) {
             Text("\(totalDates)")
-                .font(.custom("Gaegu-Bold", size: 40))
-            
-            Text("Dates Completed")
-                .font(.body)
-                .foregroundColor(.secondary)
+                .font(.luckyHeroTitle)
+                .foregroundStyle(Color.luckyBlue)
+
+            Text("Dates completed")
+                .font(.luckyHeadline)
+                .foregroundStyle(Color.charcoal)
         }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Spacing.s)
+        .accessibilityElement(children: .combine)
     }
 }
 
-
+/// An outlined bar filled up to this person's share of the completed dates, with "Name 65%" inside.
 struct PlannedByRow: View {
     let name: String
     let color: Color
     let completed: Int
     let total: Int
-    
-    private var initial: String {
-        String(name.prefix(1)).uppercased()
+
+    private var fraction: Double {
+        total > 0 ? min(Double(completed) / Double(total), 1) : 0
     }
-    
+
+    private var percent: Int { Int((fraction * 100).rounded()) }
+
     var body: some View {
-        HStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .stroke(color, lineWidth: 2)
-                    .frame(width: 50, height: 50)
-                
-                Text(initial)
-                    .font(.title3)
-                    .foregroundColor(color)
+        ZStack(alignment: .leading) {
+            Capsule().fill(Color.cardFill)
+
+            GeometryReader { geometry in
+                Capsule()
+                    .fill(color)
+                    .frame(width: geometry.size.width * fraction)
             }
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(name)
-                    .font(.subheadline)
-                
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(color.opacity(0.2))
-                            .frame(height: 12)
-                        
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(color)
-                            .frame(width: geometry.size.width * CGFloat(completed) / CGFloat(total), height: 12)
-                    }
-                }
-                .frame(height: 12)
-            }
-            
-            Text("\(completed)/\(total)")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+
+            Text("\(name) \(percent)%")
+                .font(.luckySubheadlineStrong)
+                .foregroundStyle(Color.cardFill)
+                .padding(.leading, 12)
         }
+        .frame(height: 26)
+        .clipShape(Capsule())
+        .overlay(Capsule().strokeBorder(Color.charcoal, lineWidth: Outline.thick))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(name), \(percent) percent of dates planned")
     }
 }
 
-struct WhereRow : View {
-    let indoors: Int
-    let outdoors: Int
-    
-    var body: some View {
-        
-        HStack(spacing: 40) {
-             VStack(spacing: 8) {
-                 Text("\(indoors)")
-                     .font(.custom("Gaegu-Bold", size: 30))
-                 
-                 Text("Indoors")
-                     .font(.subheadline)
-                     .foregroundColor(.secondary)
-             }
-             
-             VStack(spacing: 8) {
-                 Text("\(outdoors)")
-                     .font(.custom("Gaegu-Bold", size: 30))
-                 
-                 Text("Outdoors")
-                     .font(.subheadline)
-                     .foregroundColor(.secondary)
-             }
-         }
-     }
-}
-
-
-#Preview{
-    Background{
+#Preview {
+    Background {
         StatsCard()
             .padding(20)
     }
 }
-

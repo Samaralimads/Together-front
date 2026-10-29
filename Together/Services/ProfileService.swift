@@ -19,6 +19,9 @@ struct ProfileService {
     struct ImportantDateRequest: Encodable {
         let label: String
         let date: String
+        let repeatYearly: Bool
+        let reminderEnabled: Bool
+        let reminderDaysBefore: Int?
     }
 
     // MARK: - Response Models
@@ -26,6 +29,10 @@ struct ProfileService {
         let id: UUID
         let label: String
         let date: String
+        // Optional so an older backend that doesn't send them still decodes.
+        let repeatYearly: Bool?
+        let reminderEnabled: Bool?
+        let reminderDaysBefore: Int?
     }
 
     // MARK: - Fetch current user
@@ -50,14 +57,14 @@ struct ProfileService {
     }
 
     // MARK: - Create important date
-    static func createImportantDate(label: String, date: String) async throws -> ImportantDateResponse {
-        let body = ImportantDateRequest(label: label, date: date)
+    static func createImportantDate(label: String, date: String, repeatYearly: Bool, reminderDaysBefore: Int?) async throws -> ImportantDateResponse {
+        let body = ImportantDateRequest(label: label, date: date, repeatYearly: repeatYearly, reminderEnabled: reminderDaysBefore != nil, reminderDaysBefore: reminderDaysBefore)
         return try await APIClient.shared.request("/important-dates", method: "POST", body: body)
     }
 
     // MARK: - Update important date
-    static func updateImportantDate(id: UUID, label: String, date: String) async throws -> ImportantDateResponse {
-        let body = ImportantDateRequest(label: label, date: date)
+    static func updateImportantDate(id: UUID, label: String, date: String, repeatYearly: Bool, reminderDaysBefore: Int?) async throws -> ImportantDateResponse {
+        let body = ImportantDateRequest(label: label, date: date, repeatYearly: repeatYearly, reminderEnabled: reminderDaysBefore != nil, reminderDaysBefore: reminderDaysBefore)
         return try await APIClient.shared.request("/important-dates/\(id.uuidString)", method: "PUT", body: body)
     }
 

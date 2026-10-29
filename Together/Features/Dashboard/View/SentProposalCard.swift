@@ -13,41 +13,28 @@ struct SentProposalCard: View {
     let partnerName: String
 
     var body: some View {
-        HStack(spacing: 14) {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 6) {
-                    Image(systemName: "paperplane.fill")
-                        .font(.system(.caption2, weight: .bold))
-                    Text("WAITING FOR \(partnerName.uppercased())")
-                        .font(.system(.caption2, weight: .bold))
-                        .kerning(0.5)
-                }
-                .foregroundStyle(Color.cardFill)
-                .padding(.horizontal)
-                .padding(.vertical, 6)
-                .background(Color.luckyBlue.opacity(0.9))
-                .clipShape(Capsule())
+        HStack(spacing: Spacing.m) {
+            VStack(alignment: .leading, spacing: Spacing.s) {
+                EyebrowLabel(icon: "paperplane.fill", text: "Waiting for \(partnerName)")
 
                 Text(title)
-                    .font(.custom("Gaegu-Bold", size: 18, relativeTo: .headline))
+                    .font(.luckyHeadline)
                     .foregroundStyle(Color.charcoal)
+                    .multilineTextAlignment(.leading)
 
-                HStack(spacing: 10) {
-                    Label(date.formatted(.dateTime.month(.abbreviated).day()), systemImage: "calendar")
-                    Label(date.formatted(.dateTime.hour().minute()), systemImage: "clock")
-                }
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+                DateAndTimePills(date: date, includesWeekday: false)
             }
 
             Spacer()
 
             Image(systemName: "clock")
-                .font(.body)
-                .foregroundStyle(Color.charcoal.opacity(0.4))
+                .font(.title3)
+                .foregroundStyle(Color.inkSecondary)
         }
-        .padding(16)
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .luckyCard()
+        .padding(.trailing, Outline.shadowOffset)
     }
 }
 

@@ -138,7 +138,7 @@ private extension ActivityView {
                         RoundedRectangle(cornerRadius: Radius.tile, style: .continuous),
                         stroke: isSelected ? Color.charcoal : Color.inkSecondary,
                         lineWidth: isSelected ? 3 : Outline.thick,
-                        shadowOffset: isSelected ? 3 : 0
+                        shadowOffset: isSelected ? nil : 0
                     )
 
                 Text(title)
@@ -162,6 +162,7 @@ private extension ActivityView {
                     .frame(maxWidth: .infinity)
                     .padding(.top, 40)
             } else if viewModel.activities.isEmpty {
+                // TODO: Replace this text-only empty state with a cute illustration or animation.
                 Text("No activities found.")
                     .font(.luckyBody)
                     .foregroundStyle(Color.inkSecondary)

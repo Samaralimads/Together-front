@@ -24,7 +24,7 @@ struct MyDatesView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
 
-                        Text("Your Dates")
+                        Text("My Dates")
                             .font(.luckyScreenTitle)
                             .foregroundStyle(Color.charcoal)
                             .padding(.leading, Spacing.xs)
@@ -123,13 +123,14 @@ struct MyDatesView: View {
 
     // MARK: - Tab Picker
     private var tabPicker: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 4) {
             tabButton(title: "FAVORITES", icon: "heart.fill", tab: .favorites)
             tabButton(title: "UPCOMING", icon: "calendar", tab: .upcoming)
             tabButton(title: "HISTORY", icon: "clock.arrow.circlepath", tab: .history)
         }
-        .padding(5)
-        .background(RoundedRectangle(cornerRadius: 20).fill(.ultraThinMaterial))
+        .padding(4)
+        .luckyOutline(Capsule())
+        .padding(.trailing, Outline.shadowOffset)
     }
 
     private func tabButton(title: String, icon: String, tab: MyDatesTab) -> some View {
@@ -141,35 +142,34 @@ struct MyDatesView: View {
         } label: {
             HStack(spacing: 5) {
                 Image(systemName: icon)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.luckyCaptionStrong)
                 Text(title)
                     .font(.luckyCaptionStrong)
+                    .lineLimit(1)
             }
-            .foregroundStyle(isSelected ? Color.charcoal : Color.charcoal.opacity(0.45))
+            .foregroundStyle(isSelected ? Color.cardFill : Color.charcoal)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 10)
-            .background(
-                Group {
-                    if isSelected {
-                        RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.cardFill)
-                            .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)
-                    }
+            .background {
+                if isSelected {
+                    Capsule().fill(Color.luckyBlueLight)
                 }
-            )
+            }
         }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Empty State
     private var emptyState: some View {
         VStack(spacing: 12) {
+            // TODO: Replace the emoji (emptyIcon) with a cute illustration or animation, one per tab.
             Text(emptyIcon).font(.system(size: 40))
             Text(emptyTitle)
-                .font(.custom("Gaegu-Bold", size: 20))
+                .font(.luckyHeadline)
                 .foregroundStyle(Color.charcoal)
             Text(emptySubtitle)
                 .font(.luckySubheadline)
-                .foregroundStyle(Color.charcoal.opacity(0.6))
+                .foregroundStyle(Color.inkSecondary)
                 .multilineTextAlignment(.center)
             NavigationLink(destination: ActivityView()) {
                 Text("Discover activities")

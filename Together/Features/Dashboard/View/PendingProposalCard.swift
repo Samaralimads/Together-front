@@ -18,70 +18,42 @@ struct PendingProposalCard: View {
     var onReschedule: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.m) {
+            EyebrowLabel(icon: "sparkle", text: "New proposal from \(partnerName)")
 
-            HStack(spacing: 6) {
-                Image(systemName: "sparkle")
-                    .font(.system(.caption2, weight: .bold))
-                Text("NEW PROPOSAL FROM \(partnerName.uppercased())")
-                    .font(.system(.caption2, weight: .bold))
-                    .kerning(0.5)
-            }
-            .foregroundStyle(Color.cardFill)
-            .padding(.horizontal)
-            .padding(.vertical, 6)
-            .background(Color.luckyBlue.opacity(0.9))
-            .clipShape(Capsule())
+            VStack(alignment: .leading, spacing: Spacing.s) {
+                Text(title)
+                    .font(.luckyHeadline)
+                    .foregroundStyle(Color.charcoal)
+                    .multilineTextAlignment(.leading)
 
-            Text(title)
-                .font(.custom("Gaegu-Bold", size: 26, relativeTo: .title))
-                .foregroundStyle(Color.charcoal)
+                DateAndTimePills(date: date, includesWeekday: false)
 
-            HStack(spacing: 14) {
-                Label(date.formatted(.dateTime.month(.abbreviated).day()), systemImage: "calendar")
-                Label(date.formatted(.dateTime.hour().minute()), systemImage: "clock")
-            }
-            .font(.subheadline)
-            .foregroundStyle(Color.charcoal.opacity(0.75))
-
-            if let note {
-                Text("\(note)")
-                    .font(.footnote)
-                    .italic()
-                    .foregroundStyle(Color.charcoal.opacity(0.6))
-                    .padding(.top, 2)
+                if let note {
+                    Text(note)
+                        .font(.luckySubheadline)
+                        .italic()
+                        .foregroundStyle(Color.inkSecondary)
+                }
             }
 
-            HStack(spacing: 10) {
+            VStack(spacing: Spacing.s) {
                 Button("Accept", action: onAccept)
-                    .font(.system(.subheadline, weight: .semibold))
-                    .foregroundStyle(Color.cardFill)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color.luckyBlue.opacity(0.9))
-                    .clipShape(.rect(cornerRadius: 30))
+                    .buttonStyle(.luckyPrimary)
 
-                Button("Decline", action: onRefuse)
-                    .font(.subheadline)
-                    .foregroundStyle(Color.charcoal)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color(.systemGray6))
-                    .clipShape(.rect(cornerRadius: 30))
-                    .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color.charcoal.opacity(0.15), lineWidth: 1))
+                HStack(spacing: Spacing.s) {
+                    Button("Decline", action: onRefuse)
+                        .buttonStyle(.luckySecondary)
 
-                Button("Reschedule", action: onReschedule)
-                    .font(.subheadline)
-                    .foregroundStyle(Color.charcoal)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color(.systemGray6))
-                    .clipShape(.rect(cornerRadius: 30))
-                    .overlay(RoundedRectangle(cornerRadius: 30).stroke(Color.charcoal.opacity(0.15), lineWidth: 1))
+                    Button("Reschedule", action: onReschedule)
+                        .buttonStyle(.luckySecondary)
+                }
             }
         }
         .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .luckyCard()
+        .padding(.trailing, Outline.shadowOffset)
     }
 }
 

@@ -37,7 +37,7 @@ struct ProfileAvatarsCard: View {
                         }
                     )
                     .overlay(Circle().strokeBorder(Color.charcoal, lineWidth: Outline.thick))
-                    .background(Circle().fill(Color.charcoal).offset(x: 3, y: 3))
+                    .background(Circle().fill(Color.charcoal).offset(x: Outline.shadowMin, y: Outline.shadowMin))
                     .zIndex(0)
 
                 // Second avatar (partner or add button)
@@ -62,7 +62,7 @@ struct ProfileAvatarsCard: View {
                         }
                     )
                     .overlay(Circle().strokeBorder(Color.charcoal, lineWidth: Outline.thick))
-                    .background(Circle().fill(Color.charcoal).offset(x: 3, y: 3))
+                    .background(Circle().fill(Color.charcoal).offset(x: Outline.shadowMin, y: Outline.shadowMin))
                     .zIndex(1)
             }
             .overlay(alignment: .bottomLeading) {

@@ -9,41 +9,31 @@ import SwiftUI
 
 struct EmptyNextDateCard: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 6) {
-                Image(systemName: "calendar")
-                    .font(.system(.caption2, weight: .bold))
-                Text("YOUR NEXT DATE")
-                    .font(.system(.caption2, weight: .bold))
-                    .kerning(0.5)
-            }
-            .foregroundStyle(Color.cardFill)
-            .padding(.horizontal)
-            .padding(.vertical, 6)
-            .background(Color.luckyBlue.opacity(0.9))
-            .clipShape(Capsule())
+        // TODO: Add a cute illustration or animation to this empty state.
+        VStack(alignment: .leading, spacing: Spacing.m) {
+            Text("A little time for two.")
+                .font(.luckyTitle)
+                .foregroundStyle(Color.luckyBlue)
+                .multilineTextAlignment(.leading)
 
-                Text("No date planned yet")
-                    .font(.custom("Gaegu-Bold", size: 22, relativeTo: .title2))
-                    .foregroundStyle(Color.charcoal)
-
-            Text("Let's find something fun to do!")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            Text("No date on the calendar yet. Let's change that.")
+                .font(.luckyBody)
+                .foregroundStyle(Color.charcoal)
+                .multilineTextAlignment(.leading)
 
             NavigationLink(destination: ActivityView()) {
                 Text("Find an activity →")
-                    .font(.system(.subheadline, weight: .semibold))
-                    .foregroundStyle(Color.cardFill)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .background(Color.luckyBlue.opacity(0.9))
-                    .clipShape(.rect(cornerRadius: 20))
             }
+            .buttonStyle(.luckyPrimaryCompact)
+        }
+        .background(alignment: .topTrailing) {
+            StarAccent()
+                .offset(x: -Spacing.s, y: -Spacing.s)
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .luckyCard()
+        .padding(.trailing, Outline.shadowOffset)
     }
 }
 

@@ -15,6 +15,7 @@ class DashboardViewModel {
     var nextDate: PlannedActivity? = nil
     var pendingProposals: [PlannedActivity] = []
     var sentProposals: [PlannedActivity] = []
+    var favorites: [Activity] = []
     var isLoading = false
     var errorMessage: String? = nil
     var calendarError: String? = nil
@@ -50,6 +51,8 @@ class DashboardViewModel {
         }
 
         await loadActivities()
+        // The wishlist is optional: if favorites can't be loaded the section just stays empty.
+        favorites = (try? await ActivityService.fetchFavorites()) ?? []
         isLoading = false
     }
 

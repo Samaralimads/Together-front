@@ -18,6 +18,7 @@ struct ProfileView: View {
     @State private var showImagePicker = false
     @State private var selectedImage: UIImage?
     @State private var anniversary = Date()
+    @State private var anniversaryReminder = AnniversaryReminderStore.load()
 
     var body: some View {
         Background {
@@ -29,10 +30,11 @@ struct ProfileView: View {
                             showSettings = true
                         } label: {
                             Image(systemName: "gearshape")
-                                .font(.system(size: 22, weight: .regular))
+                                .font(.system(size: 22, weight: .medium))
                                 .foregroundStyle(Color.charcoal)
                                 .frame(width: 48, height: 48)
-                                .luckyOutline(Circle(), shadowOffset: 0)
+                                .luckyOutline(Circle())
+                                .padding(.trailing, Outline.shadowMin)
                         }
                         .accessibilityLabel("Settings")
                     }
@@ -67,7 +69,8 @@ struct ProfileView: View {
                         importantDates: $viewModel.importantDates,
                         onAddDate: { showAddDate = true },
                         onDelete: { date in Task { await viewModel.deleteImportantDate(date) } },
-                        onEdit: { date in Task { await viewModel.updateImportantDate(date) } }
+                        onEdit: { date in Task { await viewModel.updateImportantDate(date) } },
+                        anniversaryReminderDaysBefore: $anniversaryReminder
                     )
 
                     StatsCard()
@@ -83,6 +86,9 @@ struct ProfileView: View {
             await viewModel.load()
             anniversary = viewModel.anniversaryDate
             selectedImage = ProfileImageStore.load()
+        }
+        .onChange(of: anniversaryReminder) { _, newValue in
+            AnniversaryReminderStore.save(newValue)
         }
         .navigationDestination(isPresented: $showSettings) {
             SettingsView()
@@ -100,8 +106,15 @@ struct ProfileView: View {
             EditAnniversarySheet(anniversary: $anniversary)
         }
         .sheet(isPresented: $showAddDate) {
-            AddImportantDateSheet { label, date in
-                Task { await viewModel.addImportantDate(label: label, date: date) }
+            AddImportantDateSheet { label, date, repeatsYearly, reminderDaysBefore in
+                Task {
+                    await viewModel.addImportantDate(
+                        label: label,
+                        date: date,
+                        repeatsYearly: repeatsYearly,
+                        reminderDaysBefore: reminderDaysBefore
+                    )
+                }
             }
         }
         .sheet(isPresented: $showImagePicker) {

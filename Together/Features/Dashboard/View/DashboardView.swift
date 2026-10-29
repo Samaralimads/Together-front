@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DashboardView: View {
     @State private var viewModel = DashboardViewModel()
-    @State private var showInvitePartner = false
+    @Environment(\.switchTab) private var switchTab
     @State private var showInviteBannerDismissed = false
     @State private var proposalToReschedule: PlannedActivity? = nil
     @State private var proposalToDecline: PlannedActivity? = nil
@@ -26,7 +26,6 @@ struct DashboardView: View {
 
                     if !viewModel.isPaired && !showInviteBannerDismissed {
                         InviteBannerCard(
-                            onInvite: { showInvitePartner = true },
                             onDismiss: {
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                                     showInviteBannerDismissed = true
@@ -73,6 +72,17 @@ struct DashboardView: View {
                         )
                     }
 
+                    WishlistSection(
+                        favorites: viewModel.favorites,
+                        onSeeAll: { switchTab(.myDates) },
+                        onBrowse: { switchTab(.discover) }
+                    )
+
+                    DashboardShortcuts(
+                        onBrowse: { switchTab(.discover) },
+                        onManage: { switchTab(.myDates) }
+                    )
+
                     Spacer(minLength: 40)
                 }
                 .padding(.horizontal, 20)
@@ -87,9 +97,6 @@ struct DashboardView: View {
             if let activity = detailActivity {
                 ActivityDetailView(activity: activity)
             }
-        }
-        .navigationDestination(isPresented: $showInvitePartner) {
-            ShareCodePairingView()
         }
         .sheet(item: $proposalToReschedule) { proposal in
             RescheduleSheet(proposal: proposal, partnerName: viewModel.partnerName) { newDate, note in
@@ -150,24 +157,19 @@ private extension DashboardView {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(viewModel.greeting.uppercased())
-                    .font(.system(.caption, weight: .semibold))
-                    .foregroundStyle(Color.charcoal.opacity(0.6))
+                    .font(.luckyCaptionStrong)
+                    .foregroundStyle(Color.inkSecondary)
                     .kerning(1)
                 Text(viewModel.firstName)
-                    .font(.custom("Gaegu-Bold", size: 30, relativeTo: .title))
+                    .font(.luckyTitle)
                     .foregroundStyle(Color.charcoal)
             }
 
             Spacer()
 
             // TODO: wire up to a real notifications feed (partner responses, upcoming activities, special dates) — not NotificationView, that's just preference toggles
-            Button {} label: {
-                Image(systemName: "bell")
-                    .font(.system(.callout, weight: .semibold))
-                    .foregroundStyle(Color.charcoal)
-                    .frame(width: 40, height: 40)
-                    .background(Circle().fill(.thinMaterial))
-            }
+            LuckyCircleButton(systemName: "bell", label: "Notifications") {}
+                .padding(.trailing, Outline.shadowMin)
         }
     }
 }
@@ -207,15 +209,15 @@ private extension DashboardView {
                 VStack(alignment: .leading, spacing: 20) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("GOOD EVENING")
-                            .font(.luckyCaption)
-                            .foregroundStyle(Color.charcoal.opacity(0.6))
+                            .font(.luckyCaptionStrong)
+                            .foregroundStyle(Color.inkSecondary)
                             .kerning(1)
                         Text("Sarah")
-                            .font(.custom("Gaegu-Bold", size: 30))
+                            .font(.luckyTitle)
                             .foregroundStyle(Color.charcoal)
                     }
 
-                    InviteBannerCard(onInvite: {}, onDismiss: {})
+                    InviteBannerCard(code: "C89FB7", onDismiss: {})
 
                     NextDateCard(planned: nextDate, onDetails: {}, onAddToCalendar: {})
 
